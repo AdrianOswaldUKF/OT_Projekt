@@ -1,8 +1,20 @@
-from settings import *
+from const import *
 
 class Sprite(pygame.sprite.Sprite):
 
-    def __init__(self, position, group, surface):
-        super().__init__(group)
+    def __init__(self, position, groups, surface):
+
+        super().__init__(groups)
+
+        self.image = surface
+        self.rect = self.image.get_frect(topleft=position)
+        self.ground = True
+
+class CollisionSprite(pygame.sprite.Sprite):
+
+    def __init__(self, position, groups, surface):
+
+        super().__init__(groups)
+
         self.image = surface
         self.rect = self.image.get_frect(topleft=position)

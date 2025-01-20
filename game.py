@@ -1,10 +1,9 @@
-import sys
+from const import *
 
+import sys
 import pygame.display
-from pytmx.util_pygame import load_pygame
-from player import Player
-from settings import *
-from sprites import Sprite
+from groups import AllSprites
+from tile_map import TileMap
 
 class Game:
 
@@ -18,33 +17,16 @@ class Game:
         pygame.display.set_caption('Hra')
 
         # Sprite Groups
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
 
         # Map
-        self.load_map()
+        self.tile_map = TileMap(join('assets', 'map', 'tmx', 'map.tmx'), self.all_sprites, self.collision_sprites)
+        self.tile_map.load_map()
 
         # Engine
         self.clock = pygame.time.Clock()
         self.running = True
-
-        player = Player((pygame.display.Info().current_w/2, pygame.display.Info().current_h/2), self.all_sprites, self.collision_sprites)
-
-    def load_map(self):
-
-        tile_map = load_pygame(join('assets', 'map', 'tmx', 'map.tmx'))
-
-        for x, y, image in tile_map.get_layer_by_name('terrain').tiles():
-            if image:
-                Sprite((x*TILE_SIZE, y*TILE_SIZE), self.all_sprites, image)
-
-        #for item in tile_map.get_layer_by_name('objects non'):
-            #if item.image:
-                #Sprite((item.x, item.y), self.all_sprites, item.image)
-
-        #for item in tile_map.get_layer_by_name('objects'):
-            #if item.image:
-                #Sprite((item.x, item.y), (self.all_sprites, self.collision_sprites), item.image)
 
 
     def toggle_fullscreen(self):
@@ -61,7 +43,7 @@ class Game:
 
         while self.running:
 
-            delta = self.clock.tick() / 1000.0
+            delta_time = self.clock.tick() / 1000.0
 
             # Event loop
             for event in pygame.event.get():
@@ -75,8 +57,8 @@ class Game:
                     self.toggle_fullscreen()
 
             # Update
-            self.all_sprites.draw(self.scene)
-            self.all_sprites.update(delta)
+            self.all_sprites.draw(self.tile_map.player.rect.center)
+            self.all_sprites.update(delta_time)
             pygame.display.update()
 
         pygame.quit()
