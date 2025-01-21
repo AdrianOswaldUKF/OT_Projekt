@@ -5,15 +5,17 @@ from const import *
 from pytmx import load_pygame
 from sprites import Sprite, CollisionSprite
 from player import Player
+from enemy import Slime
 
 class TileMap:
 
-    def __init__(self, path, all_sprites, collision_sprites):
+    def __init__(self, path, all_sprites, collision_sprites, enemy_sprites):
 
         self.player = None
         self.tile_map = load_pygame(path)
         self.all_sprites = all_sprites
         self.collision_sprites = collision_sprites
+        self.enemy_sprites = enemy_sprites
 
         self.enemy_spawn_positions = []
         self.enemy_frames = {}
@@ -28,16 +30,16 @@ class TileMap:
             if gameObject.image:
                 CollisionSprite((gameObject.x, gameObject.y), (self.all_sprites, self.collision_sprites), gameObject.image)
 
-        for x, y, image in self.tile_map.get_layer_by_name('invisible_wall').tiles():
+        for x, y, image in self.tile_map.get_layer_by_name('map_wall').tiles():
             if image:
-                CollisionSprite((x * TILE_SIZE, y * TILE_SIZE), self.collision_sprites, image) # const.py
+                CollisionSprite((x * TILE_SIZE, y * TILE_SIZE), (self.all_sprites, self.collision_sprites), image) # const.py
 
         for entity in self.tile_map.get_layer_by_name('entities'):
             if entity.name == 'Player':
                 self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites)
 
-            if entity.name == 'Enemy':
-                self.enemy_spawn_positions.append((entity.x, entity.y))
+            if entity.name == 'Slime':
+                Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites)
 
     def load_enemies(self):
 

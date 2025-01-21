@@ -32,7 +32,7 @@ class Player(Entity):
 
         # Sprites
         self.image = pygame.image.load(join('assets','sprites','player', 'player_down.png')).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
+        self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
         self.rect = self.image.get_frect(center=position)
         self.hitbox_rect = self.rect.inflate(PLAYER_HITBOX) # const.py
 
@@ -68,17 +68,22 @@ class Player(Entity):
         if self.direction:
             self.frame += 5 * delta_time
             self.image = self.animation_sprites[self.state][int(self.frame) % len(self.animation_sprites[self.state])]
-            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
+            self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
         else:
             self.image = self.static_sprites[self.state]
-            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
+            self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
 
     def move(self, delta_time):
 
+        # Horizontal Movement
         self.hitbox_rect.x += self.direction.x * delta_time * self.speed
         self.collision('horizontal')
+
+        # Vertical Movement
         self.hitbox_rect.y += self.direction.y * delta_time * self.speed
         self.collision('vertical')
+
+        # Center hitbox
         self.rect.center = self.hitbox_rect.center
 
     def input(self):

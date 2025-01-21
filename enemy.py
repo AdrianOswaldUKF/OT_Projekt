@@ -1,11 +1,11 @@
 import pygame
+from os.path import join
 from const import *
 from entity import Entity
 
-
 class Enemy(Entity):
 
-    def __init__(self,position, frames, groups, player, collision_sprites):
+    def __init__(self, groups, player, collision_sprites):
 
         super().__init__(groups)
 
@@ -13,21 +13,15 @@ class Enemy(Entity):
         self.player = player
 
         # Animation
-        self.frames = frames
         self.frame = 0
-        self.animation_speed = ENEMY_ANIMATION_SPEED
-
-        # Sprites, Hitbox
-        self.image = self.frames[self.frame]
-        self.rect = self.image.get_frect(center=position)
-        self.hitbox_rect = self.rect.inflate(ENEMY_HITBOX) # const.py
 
         # Collision
         self.collision_sprites = collision_sprites
 
         # Movement
-        self.direction = pygame.Vector2(0, 0)
-        self.speed = ENEMY_SPEED # const.py
+        self.direction = pygame.Vector2()
+
+        self.speed = 0
 
     def move(self, delta_time):
 
@@ -39,8 +33,12 @@ class Enemy(Entity):
 
         # Movement
         self.direction = (player_pos - enemy_pos).normalize()
+
+        # Horizontal Movement
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
         self.collision('horizontal')
+
+        # Vertical Movement
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
         self.collision('vertical')
 
@@ -49,10 +47,26 @@ class Enemy(Entity):
 
     def animate(self, delta_time):
 
-        self.frame += self.animation_speed * delta_time
-        self.image = self.frames[int(self.frame) % len(self.frames)]
+        pass
+        #self.frame += self.animation_speed * delta_time
+        #self.image = self.frames[int(self.frame) % len(self.frames)]
 
     def update(self, delta_time):
 
         self.move(delta_time)
         self.animate(delta_time)
+
+class Slime(Enemy):
+
+    def __init__(self, position, groups, player, collision_sprites):
+
+        super().__init__(groups, player, collision_sprites)
+
+        # Sprites, Hitbox
+        self.image = pygame.image.load(join('assets', 'sprites', 'enemies', 'slime', '0.png')).convert_alpha()
+        self.image = pygame.transform.scale(self.image, SLIME_SIZE)  # const.py
+        self.rect = self.image.get_frect(center=position)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX) # const.py
+
+        self.animation_speed = SLIME_ANIMATION_SPEED
+        self.speed = SLIME_SPEED  # const.py

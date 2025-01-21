@@ -22,7 +22,7 @@ class Game:
         self.enemy_sprites = pygame.sprite.Group()
 
         # Map
-        self.tile_map = TileMap(join('assets', 'map', 'tmx', 'tile_map.tmx'), self.all_sprites, self.collision_sprites)
+        self.tile_map = TileMap(join('assets', 'map', 'tmx', 'tile_map.tmx'), self.all_sprites, self.collision_sprites, self.enemy_sprites)
         self.tile_map.load_tilemap()
 
         # Player
