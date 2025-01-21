@@ -1,10 +1,12 @@
-import pygame
-from os.path import join
-from os import walk
-
 WINDOW_W = 800
 WINDOW_H = 600
 
 TILE_SIZE = 32
 
 PLAYER_SIZE = 32
+PLAYER_HITBOX = -20, -20
+PLAYER_SPEED = 200
+
+ENEMY_HITBOX = -20, -40
+ENEMY_SPEED = 150
+ENEMY_ANIMATION_SPEED = 6

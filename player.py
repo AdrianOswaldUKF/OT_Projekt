@@ -1,6 +1,10 @@
+import pygame
+from os.path import join
 from const import *
+from entity import Entity
 
-class Player(pygame.sprite.Sprite):
+
+class Player(Entity):
 
     def __init__(self, position, groups, collision_sprites):
 
@@ -22,18 +26,22 @@ class Player(pygame.sprite.Sprite):
             'right': []
         }
 
-        # Load Sprites
+        # Animation
         self.state = 'down'
         self.frame = 0
+
+        # Sprites
         self.image = pygame.image.load(join('assets','sprites','player', 'player_down.png')).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
+        self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
         self.rect = self.image.get_frect(center=position)
-        self.hitbox_rect = self.rect.inflate(-20, -20)
+        self.hitbox_rect = self.rect.inflate(PLAYER_HITBOX) # const.py
+
+        # Load images into dictionaries
         self.load_images()
 
         # Movement
         self.direction = pygame.Vector2()
-        self.speed = 200
+        self.speed = PLAYER_SPEED # const.py
         self.collision_sprites = collision_sprites
 
     def load_images(self):
@@ -58,12 +66,12 @@ class Player(pygame.sprite.Sprite):
             self.state = 'down' if self.direction.y > 0 else 'up'
 
         if self.direction:
-            self.frame += 5 * delta_time  # delta_time time
+            self.frame += 5 * delta_time
             self.image = self.animation_sprites[self.state][int(self.frame) % len(self.animation_sprites[self.state])]
-            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
+            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
         else:
             self.image = self.static_sprites[self.state]
-            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE))
+            self.image = pygame.transform.scale(self.image, (PLAYER_SIZE, PLAYER_SIZE)) # const.py
 
     def move(self, delta_time):
 
@@ -72,25 +80,6 @@ class Player(pygame.sprite.Sprite):
         self.hitbox_rect.y += self.direction.y * delta_time * self.speed
         self.collision('vertical')
         self.rect.center = self.hitbox_rect.center
-
-    def collision(self, direction):
-
-        for sprite in self.collision_sprites:
-
-            if sprite.rect.colliderect(self.hitbox_rect):
-                if direction == 'horizontal':
-                    if self.direction.x > 0: # right
-                        self.hitbox_rect.right = sprite.rect.left
-
-                    if self.direction.x < 0: # left
-                        self.hitbox_rect.left = sprite.rect.right
-
-                if direction == 'vertical':
-                    if self.direction.y > 0: # up
-                        self.hitbox_rect.bottom = sprite.rect.top
-
-                    if self.direction.y < 0: # down
-                        self.hitbox_rect.top = sprite.rect.bottom
 
     def input(self):
 

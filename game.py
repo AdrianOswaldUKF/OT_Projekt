@@ -1,7 +1,7 @@
-from const import *
-
+import pygame
 import sys
-import pygame.display
+from os.path import join
+from const import *
 from groups import AllSprites
 from tile_map import TileMap
 
@@ -19,10 +19,19 @@ class Game:
         # Sprite Groups
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
 
         # Map
         self.tile_map = TileMap(join('assets', 'map', 'tmx', 'tile_map.tmx'), self.all_sprites, self.collision_sprites)
-        self.tile_map.load_map()
+        self.tile_map.load_tilemap()
+
+        # Player
+
+        self.player = self.tile_map.player
+
+        # Enemies
+        self.enemy_event = pygame.event.custom_type()
+        pygame.time.set_timer(self.enemy_event, 500)
 
         # Engine
         self.clock = pygame.time.Clock()
@@ -32,7 +41,7 @@ class Game:
     def toggle_fullscreen(self):
 
         if self.fullscreen:
-            self.scene = pygame.display.set_mode((WINDOW_W, WINDOW_H))
+            self.scene = pygame.display.set_mode((WINDOW_W, WINDOW_H)) # const.py
             self.fullscreen = False
 
         else:
@@ -43,7 +52,7 @@ class Game:
 
         while self.running:
 
-            delta_time = self.clock.tick() / 1000.0
+            deltaTime = self.clock.tick() / 1000.0
 
             # Event loop
             for event in pygame.event.get():
@@ -56,9 +65,14 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
                     self.toggle_fullscreen()
 
+                # if event.type == self.enemy_event:
+                #     position = choice(self.tile_map.enemy_spawn_positions)
+                #     enemy = choice(list(self.tile_map.enemy_frames.values()))
+                #     Enemy(position, enemy, (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites)
+
             # Update
-            self.all_sprites.draw(self.tile_map.player.rect.center)
-            self.all_sprites.update(delta_time)
+            self.all_sprites.draw(self.player.rect.center)
+            self.all_sprites.update(deltaTime)
             pygame.display.update()
 
         pygame.quit()
