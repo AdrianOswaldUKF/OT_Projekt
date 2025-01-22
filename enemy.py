@@ -42,7 +42,7 @@ class Enemy(Entity):
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
         self.collision('vertical')
 
-        # Hitbox
+        # Center hitbox
         self.rect.center = self.hitbox_rect.center
 
     def animate(self, delta_time):
