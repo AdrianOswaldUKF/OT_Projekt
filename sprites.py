@@ -8,7 +8,7 @@ class Sprite(pygame.sprite.Sprite):
 
         self.image = surface
         self.rect = self.image.get_frect(topleft=position)
-        self.ground = True
+        self.terrain = True
 
 class CollisionSprite(pygame.sprite.Sprite):
 

@@ -7,9 +7,14 @@ class Entity(pygame.sprite.Sprite):
 
         super().__init__(groups)
 
+        # Sprites, Hitbox
         self.collision_sprites = None
         self.hitbox_rect = None
         self.direction = None
+
+        # Health
+        self.health = 0
+        self.alive = True
 
     def collision(self, direction):
 

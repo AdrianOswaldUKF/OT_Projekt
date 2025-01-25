@@ -10,6 +10,8 @@ class Player(Entity):
 
         super().__init__(groups)
 
+        self.render_priority = 0
+
         # Static sprites
         self.static_sprites = {
             'up': '',
@@ -43,6 +45,9 @@ class Player(Entity):
         self.direction = pygame.Vector2()
         self.speed = PLAYER_SPEED # const.py
         self.collision_sprites = collision_sprites
+
+        # Health
+        self.health = 100
 
     def load_images(self):
 
@@ -94,8 +99,14 @@ class Player(Entity):
         self.direction.y = int(keys[pygame.K_DOWN])-int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction else self.direction
 
+    def check_health(self):
+        if self.health <= 0:
+            self.alive = False
+            self.kill()
+
     def update(self, delta_time):
 
         self.input()
         self.move(delta_time)
         self.animate(delta_time)
+        self.check_health()
