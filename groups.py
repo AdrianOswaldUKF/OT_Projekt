@@ -15,8 +15,10 @@ class AllSprites(pygame.sprite.Group):
         self.offset.y = -(target_pos[1] - pygame.display.Info().current_h / 2)
 
         ground_sprites = [sprite for sprite in self if hasattr(sprite, 'terrain')]
-        object_sprites = [sprite for sprite in self if not hasattr(sprite, 'terrain')]
+        player_sprite = [sprite for sprite in self if hasattr(sprite, 'isPlayer')]
+        enemy_sprites = [sprite for sprite in self if hasattr(sprite, 'isEnemy')]
+        object_sprites = [sprite for sprite in self if hasattr(sprite, 'object')]
 
-        for layer in [ground_sprites, object_sprites]:
+        for layer in [ground_sprites, player_sprite, enemy_sprites, object_sprites]:
             for sprite in sorted(layer, key=lambda sprite: sprite.rect.centery):
                 self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)

@@ -18,3 +18,4 @@ class CollisionSprite(pygame.sprite.Sprite):
 
         self.image = surface
         self.rect = self.image.get_frect(topleft=position)
+        self.object = True

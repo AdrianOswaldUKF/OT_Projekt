@@ -1,14 +1,18 @@
-import pygame
-from random import randint, uniform
 from os.path import join
+from random import randint
+
+import pygame
+
 from const import *
 from entity import Entity
+
 
 class Enemy(Entity):
 
     def __init__(self, name, position, groups, player, collision_sprites):
 
         super().__init__(groups)
+        self.isEnemy = True
 
         self.render_priority = 1
 
@@ -63,49 +67,38 @@ class Enemy(Entity):
 
         # If player is alive
         if self.player.alive:
-            # Player position
-            player_pos = pygame.Vector2(self.player.rect.center)
+            player_pos, enemy_pos = pygame.Vector2(self.player.rect.center), pygame.Vector2(self.rect.center)
+            direction_vector = player_pos - enemy_pos
 
-            # Enemy position
-            enemy_pos = pygame.Vector2(self.rect.center)
-
-            # Movement
-            self.direction = (player_pos - enemy_pos)
-
-            if self.direction.length() != 0:
-                self.direction = self.direction.normalize()
+            if direction_vector.length() != 0:
+                self.direction = direction_vector.normalize()
             else:
                 self.direction = pygame.Vector2()
 
-        # If player is dead, move randomly
+        # Wait
+        elif self.is_waiting:
+            self.wait_time -= delta_time
+
+            if self.wait_time <= 0:
+                self.is_waiting = False
+                self.move_time = self.move_duration
+                self.wait_time = self.wait_duration
+
+        # If player is not alive
         else:
-            if self.is_waiting:
-                # Wait for the specified duration before changing direction
-                self.wait_time -= delta_time  # Decrease wait time based on delta_time
+            self.move_time -= delta_time
 
-                if self.wait_time <= 0:
-                    self.is_waiting = False
-                    self.move_time = self.move_duration  # Start moving for the move duration
-                    self.wait_time = self.wait_duration  # Reset wait time
-                # Else the enemy stays waiting until wait_time runs out
-            else:
-                # Move for the specified duration
-                self.move_time -= delta_time  # Decrease move time based on delta_time
+            if self.move_time <= 0:
+                self.is_waiting = True
 
-                if self.move_time <= 0:
-                    self.is_waiting = True
-                    self.direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))  # Random direction
+                random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
 
-                    # Normalize the direction to ensure it's a unit vector
-                    if self.direction.length() != 0:
-                        self.direction = self.direction.normalize()
-                    else:
-                        self.direction = pygame.Vector2()
+                if random_direction.length() != 0:
+                    self.direction = random_direction.normalize()
+                else:
+                    self.direction = pygame.Vector2()
 
-                    self.wait_time = self.wait_duration  # Start waiting for the wait duration
-                # Else the enemy keeps moving in the same direction
-
-
+                self.wait_time = self.wait_duration
 
         # Horizontal Movement
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time

@@ -30,7 +30,6 @@ class Game:
         self.tile_map.load_tilemap()
 
         # Player
-
         self.player = self.tile_map.player
 
         # Enemies
@@ -40,6 +39,12 @@ class Game:
         # Engine
         self.clock = pygame.time.Clock()
         self.running = True
+
+        # FPS
+        self.fps_update_interval = 1000  # Update FPS every 1000 milliseconds (1 second)
+        self.last_fps_update_time = pygame.time.get_ticks()
+        self.frame_count = 0
+        self.current_fps = 0
 
     def toggle_fullscreen(self):
 
@@ -51,6 +56,16 @@ class Game:
             self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             self.fullscreen = True
 
+    def update_fps(self):
+        # Get current time in milliseconds
+        current_time = pygame.time.get_ticks()
+        self.frame_count += 1
+
+        # Update FPS every second (1000 ms)
+        if current_time - self.last_fps_update_time >= self.fps_update_interval:
+            self.current_fps = round(self.frame_count / (self.fps_update_interval / 1000))  # Calculate FPS
+            self.last_fps_update_time = current_time
+            self.frame_count = 0  # Reset frame count for the next second
 
     def check_collisions(self, delta_time):
 
@@ -58,12 +73,13 @@ class Game:
             return
 
         for enemy in self.enemy_sprites:
-            if self.player.hitbox_rect.colliderect(enemy.hitbox_rect):
+            if self.player.rect.colliderect(enemy.hitbox_rect):
                 enemy.deal_damage(delta_time)
 
     def run(self):
 
         while self.running:
+
 
             delta_time = self.clock.tick() / 1000.0
 
@@ -89,9 +105,13 @@ class Game:
             self.all_sprites.update(delta_time)
             self.check_collisions(delta_time)
 
+            # Update FPS
+            self.update_fps()
+
             # Draw GUI
             self.gui.draw_health_bar(self.player.health, 100)
             self.gui.draw_health_text(self.player.health)
+            self.gui.draw_fps(self.current_fps)
 
             pygame.display.update()
 

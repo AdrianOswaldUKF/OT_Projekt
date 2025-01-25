@@ -9,6 +9,7 @@ class Player(Entity):
     def __init__(self, position, groups, collision_sprites):
 
         super().__init__(groups)
+        self.isPlayer = True
 
         self.render_priority = 0
 
@@ -48,6 +49,12 @@ class Player(Entity):
 
         # Health
         self.health = 100
+
+        # Equipped Item
+        self.equipped = None
+
+        # Inventory
+        self.inventory = []
 
     def load_images(self):
 
