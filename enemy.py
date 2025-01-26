@@ -40,6 +40,11 @@ class Enemy(Entity):
         # Movement
         self.direction = pygame.Vector2()
         self.speed = 0
+        self.chasing = False  # Whether the enemy is chasing the player
+
+        # Line of Sight (LOS)
+        self.los_size = (300, 300)  # LOS dimensions (width, height)
+        self.line_of_sight = pygame.Rect(0, 0, *self.los_size)
 
         # Random Movement
         self.move_time = 0      # Time to move for a certain period (in seconds)
@@ -57,16 +62,27 @@ class Enemy(Entity):
         self.last_damage = 0
 
     def load_images(self):
-
         for i in range(9):
             file_path = join('assets', 'sprites', 'enemies', self.enemy_name, f'{i}.png')
             if file_path:
-                self.animation_sprites.append((pygame.image.load(file_path).convert_alpha()))
+                self.animation_sprites.append(pygame.image.load(file_path).convert_alpha())
+
+    def update_los(self):
+        # Update the LOS position to be relative to the enemy
+        self.line_of_sight.center = self.rect.center
 
     def move(self, delta_time):
 
-        # If player is alive
-        if self.player.alive:
+        self.update_los()
+
+        # Check if the player is in the LOS
+        if self.line_of_sight.colliderect(self.player.rect):
+            self.chasing = True
+        else:
+            self.chasing = False
+
+        if self.chasing and self.player.alive:
+            # Chase the player
             player_pos, enemy_pos = pygame.Vector2(self.player.rect.center), pygame.Vector2(self.rect.center)
             direction_vector = player_pos - enemy_pos
 
@@ -75,29 +91,22 @@ class Enemy(Entity):
             else:
                 self.direction = pygame.Vector2()
 
-        # Wait
         elif self.is_waiting:
+            # Wait before moving again
             self.wait_time -= delta_time
-
             if self.wait_time <= 0:
                 self.is_waiting = False
                 self.move_time = self.move_duration
-                self.wait_time = self.wait_duration
-
-        # If player is not alive
         else:
+            # Wander randomly
             self.move_time -= delta_time
-
             if self.move_time <= 0:
                 self.is_waiting = True
-
                 random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
-
                 if random_direction.length() != 0:
                     self.direction = random_direction.normalize()
                 else:
                     self.direction = pygame.Vector2()
-
                 self.wait_time = self.wait_duration
 
         # Horizontal Movement
@@ -112,30 +121,14 @@ class Enemy(Entity):
         self.rect.center = self.hitbox_rect.center
 
     def animate(self, delta_time):
-
         self.frame += self.animation_speed * delta_time
         self.image = self.animation_sprites[int(self.frame) % len(self.animation_sprites)]
-        self.image = pygame.transform.scale(self.image, SLIME_SIZE) # const.py
-
+        self.image = pygame.transform.scale(self.image, SLIME_SIZE)
 
     def update(self, delta_time):
-
         self.move(delta_time)
         self.animate(delta_time)
 
-
-    def deal_damage(self, delta_time):
-
-        if not self.player.alive:
-            return
-
-        self.last_damage += delta_time
-
-        if not self.last_damage >= self.damage_cooldown:
-            return
-
-        self.player.health -= self.damage
-        self.last_damage = 0
 
 class Slime(Enemy):
 
