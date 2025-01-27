@@ -6,12 +6,16 @@ from entity import Entity
 
 class Player(Entity):
 
-    def __init__(self, position, groups, collision_sprites):
+    def __init__(self, position, groups, collision_sprites, interactables_sprites):
 
         super().__init__(groups)
         self.isPlayer = True
 
         self.render_priority = 0
+
+        self.position = position
+
+        self.interactables_sprites = interactables_sprites
 
         # Static sprites
         self.static_sprites = {
@@ -64,7 +68,9 @@ class Player(Entity):
                 self.static_sprites[state] = (pygame.image.load(file_path).convert_alpha())
 
         for state in self.animation_sprites.keys():
+
             for i in range(1, 3):
+
                 file_path = join('assets', 'sprites', 'player', f'player_{state}{i}.png')
                 if file_path:
                     self.animation_sprites[state].append(pygame.image.load(file_path).convert_alpha())
@@ -102,11 +108,48 @@ class Player(Entity):
 
         keys = pygame.key.get_pressed()
 
+        # Movement
         self.direction.x = int(keys[pygame.K_RIGHT])-int(keys[pygame.K_LEFT])
         self.direction.y = int(keys[pygame.K_DOWN])-int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction else self.direction
 
+    def interact(self):
+
+        for obj in self.interactables_sprites:
+
+            if self.is_facing_object(obj):
+                obj.interact()  # Trigger interaction
+                return  # Only interact with one object at a time
+
+    def is_facing_object(self, obj):
+
+        # Check proximity
+        interaction_distance = 30  # Adjust as needed
+        player_center = pygame.Vector2(self.hitbox_rect.center)
+        object_center = pygame.Vector2(obj.rect.center)
+
+        # Calculate distance between the centers
+        distance = player_center - object_center
+
+        # If the distance is too great, return False
+        if distance.length() > interaction_distance:
+            return False
+
+        # Check if the player is facing the object
+        if self.state == 'up' and distance.y > 0 and abs(distance.x) < interaction_distance:
+            return True
+        if self.state == 'down' and distance.y < 0 and abs(distance.x) < interaction_distance:
+            return True
+        if self.state == 'left' and distance.x > 0 and abs(distance.y) < interaction_distance:
+            return True
+        if self.state == 'right' and distance.x < 0 and abs(distance.y) < interaction_distance:
+            return True
+
+        # If none of the conditions are met, the player is not facing the object properly
+        return False
+
     def check_health(self):
+
         if self.health <= 0:
             self.alive = False
             self.kill()

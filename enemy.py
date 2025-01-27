@@ -1,4 +1,4 @@
-from os.path import join
+import os
 from random import randint
 
 import pygame
@@ -18,8 +18,10 @@ class Enemy(Entity):
 
         self.enemy_name = name
 
+        self.position = position
+
         # Sprites, Hitbox
-        self.image = pygame.image.load(join('assets', 'sprites', 'enemies', name, '0.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('assets', 'sprites', 'enemies', name, '0.png')).convert_alpha()
         self.rect = self.image.get_frect(center=position)
 
         # Animation sprites
@@ -62,12 +64,20 @@ class Enemy(Entity):
         self.last_damage = 0
 
     def load_images(self):
-        for i in range(9):
-            file_path = join('assets', 'sprites', 'enemies', self.enemy_name, f'{i}.png')
+
+        folder_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name)
+
+        file_count = len([file for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))])
+
+        for i in range(file_count):
+
+            file_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name, f'{i}.png')
+
             if file_path:
                 self.animation_sprites.append(pygame.image.load(file_path).convert_alpha())
 
     def update_los(self):
+
         # Update the LOS position to be relative to the enemy
         self.line_of_sight.center = self.rect.center
 
@@ -97,16 +107,19 @@ class Enemy(Entity):
             if self.wait_time <= 0:
                 self.is_waiting = False
                 self.move_time = self.move_duration
+
         else:
             # Wander randomly
             self.move_time -= delta_time
             if self.move_time <= 0:
                 self.is_waiting = True
                 random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
+
                 if random_direction.length() != 0:
                     self.direction = random_direction.normalize()
                 else:
                     self.direction = pygame.Vector2()
+
                 self.wait_time = self.wait_duration
 
         # Horizontal Movement
@@ -121,13 +134,28 @@ class Enemy(Entity):
         self.rect.center = self.hitbox_rect.center
 
     def animate(self, delta_time):
+
         self.frame += self.animation_speed * delta_time
         self.image = self.animation_sprites[int(self.frame) % len(self.animation_sprites)]
         self.image = pygame.transform.scale(self.image, SLIME_SIZE)
 
     def update(self, delta_time):
+
         self.move(delta_time)
         self.animate(delta_time)
+
+    def deal_damage(self, delta_time):
+
+        if not self.player.alive:
+            return
+
+        self.last_damage += delta_time
+        if not self.last_damage >= self.damage_cooldown:
+            return
+
+        self.player.health -= self.damage
+        self.last_damage = 0
+
 
 
 class Slime(Enemy):

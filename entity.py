@@ -21,26 +21,19 @@ class Entity(pygame.sprite.Sprite):
         for sprite in self.collision_sprites:
 
             if sprite.rect.colliderect(self.hitbox_rect):
-
                 if direction == 'horizontal':
-
-                    if self.direction.x > 0:  # Moving right
+                    if self.direction.x > 0: # right
                         self.hitbox_rect.right = sprite.rect.left
-                    elif self.direction.x < 0:  # Moving left
+
+                    if self.direction.x < 0: # left
                         self.hitbox_rect.left = sprite.rect.right
 
-                    # Stop horizontal movement
-                    self.direction.x = 0
-
-                elif direction == 'vertical':
-
-                    if self.direction.y > 0:  # Moving down
+                if direction == 'vertical':
+                    if self.direction.y > 0: # up
                         self.hitbox_rect.bottom = sprite.rect.top
-                    elif self.direction.y < 0:  # Moving up
-                        self.hitbox_rect.top = sprite.rect.bottom
 
-                    # Stop vertical movement
-                    self.direction.y = 0
+                    if self.direction.y < 0: # down
+                        self.hitbox_rect.top = sprite.rect.bottom
 
     @abstractmethod
     def move(self, delta_time):

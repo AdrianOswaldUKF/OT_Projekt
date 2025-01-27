@@ -24,9 +24,16 @@ class Game:
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
         self.enemy_sprites = pygame.sprite.Group()
+        self.interactables_sprites = pygame.sprite.Group()
 
         # Map
-        self.tile_map = TileMap(join('assets', 'map', 'tmx', 'test.tmx'), self.all_sprites, self.collision_sprites, self.enemy_sprites)
+        self.tile_map = TileMap(
+            join('assets', 'map', 'tmx', 'test.tmx'),
+            self.all_sprites,
+            self.collision_sprites,
+            self.enemy_sprites,
+            self.interactables_sprites
+        )
         self.tile_map.load_tilemap()
 
         # Player
@@ -93,6 +100,9 @@ class Game:
                 # Toggle Fullscreen Event
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
                     self.toggle_fullscreen()
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                    self.player.interact()
 
                 # if event.type == self.enemy_event:
                 #     position = choice(self.tile_map.enemy_spawn_positions)
