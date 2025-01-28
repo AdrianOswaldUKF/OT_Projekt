@@ -4,7 +4,7 @@ from os.path import join
 from const import *
 from groups import AllSprites
 from tile_map import TileMap
-from gui import GUI
+from gui import GUI, InventoryGUI
 
 class Game:
 
@@ -53,6 +53,9 @@ class Game:
         self.frame_count = 0
         self.current_fps = 0
 
+        # Inventory GUI
+        self.inventory_gui = InventoryGUI(self.display_surface)
+
     def toggle_fullscreen(self):
 
         if self.fullscreen:
@@ -84,30 +87,26 @@ class Game:
                 enemy.deal_damage(delta_time)
 
     def run(self):
-
         while self.running:
-
-
             delta_time = self.clock.tick() / 1000.0
 
             # Event loop
             for event in pygame.event.get():
-
-                # Quit Event
+                # Quit event
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     self.running = False
 
-                # Toggle Fullscreen Event
+                # Toggle fullscreen
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
                     self.toggle_fullscreen()
 
+                # Interact
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                     self.player.interact()
 
-                # if event.type == self.enemy_event:
-                #     position = choice(self.tile_map.enemy_spawn_positions)
-                #     enemy = choice(list(self.tile_map.enemy_frames.values()))
-                #     Enemy(position, enemy, (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites)
+                # Toggle inventory
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                    self.inventory_gui.toggle_inventory()
 
             # Update
             self.display_surface.fill((0, 255, 255))
@@ -122,6 +121,9 @@ class Game:
             self.gui.draw_health_bar(self.player.health, 100)
             self.gui.draw_health_text(self.player.health)
             self.gui.draw_fps(self.current_fps)
+
+            # Draw Inventory if visible
+            self.inventory_gui.draw_inventory(self.player.inventory)
 
             pygame.display.update()
 

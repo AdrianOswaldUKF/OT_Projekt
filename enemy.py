@@ -1,15 +1,13 @@
+import pygame
 import os
 from random import randint
-
-import pygame
-
 from const import *
 from entity import Entity
 
 
 class Enemy(Entity):
 
-    def __init__(self, name, position, groups, player, collision_sprites):
+    def __init__(self, name, position, groups, player, collision_sprites, enemy_sprites):
 
         super().__init__(groups)
         self.isEnemy = True
@@ -38,6 +36,7 @@ class Enemy(Entity):
 
         # Collision
         self.collision_sprites = collision_sprites
+        self.enemy_sprites = enemy_sprites
 
         # Movement
         self.direction = pygame.Vector2()
@@ -45,7 +44,7 @@ class Enemy(Entity):
         self.chasing = False  # Whether the enemy is chasing the player
 
         # Line of Sight (LOS)
-        self.los_size = (300, 300)  # LOS dimensions (width, height)
+        self.los_size = ENEMY_LOS  # LOS dimensions (width, height)
         self.line_of_sight = pygame.Rect(0, 0, *self.los_size)
 
         # Random Movement
@@ -82,7 +81,6 @@ class Enemy(Entity):
         self.line_of_sight.center = self.rect.center
 
     def move(self, delta_time):
-
         self.update_los()
 
         # Check if the player is in the LOS
@@ -93,13 +91,22 @@ class Enemy(Entity):
 
         if self.chasing and self.player.alive:
             # Chase the player
-            player_pos, enemy_pos = pygame.Vector2(self.player.rect.center), pygame.Vector2(self.rect.center)
+            player_pos = pygame.Vector2(self.player.rect.center)
+            enemy_pos = pygame.Vector2(self.rect.center)
             direction_vector = player_pos - enemy_pos
 
             if direction_vector.length() != 0:
                 self.direction = direction_vector.normalize()
             else:
                 self.direction = pygame.Vector2()
+
+            # Avoidance Logic - Push away from nearby enemies
+            for enemy in self.enemy_sprites:
+                if enemy != self:  # Avoid itself
+                    distance = pygame.Vector2(self.rect.center) - pygame.Vector2(enemy.rect.center)
+                    if distance.length() < ENEMY_DISTANCE_THRESHOLD:
+                        if distance.length() != 0:  # Avoid division by zero
+                            self.direction += distance.normalize() * 0.5  # Push away
 
         elif self.is_waiting:
             # Wait before moving again
@@ -122,15 +129,23 @@ class Enemy(Entity):
 
                 self.wait_time = self.wait_duration
 
-        # Horizontal Movement
+
+        # Handle combined movement and collision
+        original_position = self.hitbox_rect.topleft
+
+        # Attempt horizontal movement
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
-        self.collision('horizontal')
+        if self.collision('horizontal'):
+            self.hitbox_rect.x = original_position[0]  # Revert horizontal movement
+            self.direction.x = 0  # Stop horizontal movement
 
-        # Vertical Movement
+        # Attempt vertical movement
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
-        self.collision('vertical')
+        if self.collision('vertical'):
+            self.hitbox_rect.y = original_position[1]  # Revert vertical movement
+            self.direction.y = 0  # Stop vertical movement
 
-        # Center hitbox
+        # Update the rect's center to match the hitbox
         self.rect.center = self.hitbox_rect.center
 
     def animate(self, delta_time):
@@ -160,11 +175,12 @@ class Enemy(Entity):
 
 class Slime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
 
-        super().__init__('slime', position, groups, player, collision_sprites)
+        super().__init__('slime', position, groups, player, collision_sprites, enemy_sprites)
 
         self.image = pygame.transform.scale(self.image, SLIME_SIZE)  # const.py
+        self.rect = self.image.get_frect(center=self.rect.center)
         self.hitbox_rect = self.rect.inflate(SLIME_HITBOX) # const.py
 
         self.animation_speed = SLIME_ANIMATION_SPEED

@@ -1,11 +1,11 @@
+import pygame
 import os
 from const import *
-
-import pygame
+from item import Sword
 
 class Object(pygame.sprite.Sprite):
 
-    def __init__(self, name, position, groups, collision_sprites):
+    def __init__(self, name, position, groups, player, collision_sprites):
 
         super().__init__(groups)
         self.object = True
@@ -14,6 +14,7 @@ class Object(pygame.sprite.Sprite):
         self.position = position
         self.groups = groups
         self.collision_sprites = collision_sprites
+        self.player = player
 
         self.sprites = []
 
@@ -43,14 +44,16 @@ class Object(pygame.sprite.Sprite):
 
 class Chest(Object):
 
-    def __init__(self, position, groups, collision_sprites):
+    def __init__(self, position, groups, player, collision_sprites):
 
-        super().__init__('chest', position, groups, collision_sprites)
+        super().__init__('chest', position, groups, player, collision_sprites)
 
         self.image = pygame.transform.scale(self.image, CHEST_SIZE)  # const.py
         self.rect = self.image.get_frect(topleft=self.position)
 
         self.opened = False
+
+        self.inventory = [Sword('Lava Sword')]
 
     def interact(self):
 
@@ -59,9 +62,4 @@ class Chest(Object):
             self.image = self.sprites[1]
             self.image = pygame.transform.scale(self.image, CHEST_SIZE)
             self.rect = self.image.get_frect(topleft=self.position)
-
-        elif self.opened:
-            self.opened = False
-            self.image = self.sprites[0]
-            self.image = pygame.transform.scale(self.image, CHEST_SIZE)
-            self.rect = self.image.get_frect(topleft=self.position)
+            self.player.inventory.append(self.inventory[0])

@@ -1,6 +1,3 @@
-import pygame
-from os import walk
-from os.path import join
 from const import *
 from pytmx import load_pygame
 from sprites import Sprite, CollisionSprite
@@ -34,27 +31,12 @@ class TileMap:
                 self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites)
 
             if entity.name == 'enemy_slime':
-                Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites)
+                Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites, self.enemy_sprites)
 
             if entity.name == 'chest':
-                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.collision_sprites)
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, self.collision_sprites)
 
 
         for x, y, image in self.tile_map.get_layer_by_name('map_border').tiles():
             if image:
                 CollisionSprite((x * TILE_SIZE, y * TILE_SIZE), (self.all_sprites, self.collision_sprites), image)
-
-    def load_enemies(self):
-
-        folders = list(walk(join('assets', 'sprites', 'enemies')))[0][1]
-
-        for folder in folders:
-
-            for folder_path, _, file_names in walk(join('assets', 'sprites', 'enemies', folder)):
-
-                self.enemy_frames[folder] = []
-                for file_name in sorted(file_names, key=lambda name: int(name.split('.')[0])):
-
-                    full_path = join(folder_path, file_name)
-                    surface = pygame.image.load(full_path).convert_alpha()
-                    self.enemy_frames[folder].append(surface)

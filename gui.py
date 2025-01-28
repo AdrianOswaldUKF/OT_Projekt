@@ -38,3 +38,46 @@ class GUI:
         fps_text = f'FPS: {current_fps}'
         fps_surface = self.font.render(fps_text, True, (255, 255, 255))
         self.display_surface.blit(fps_surface, (self.display_w - 150, 10))
+
+
+class InventoryGUI(GUI):
+
+    def __init__(self, screen):
+
+        super().__init__(screen)
+
+        # Inventory UI settings
+        self.inventory_bg_color = (50, 50, 50)  # Background color
+        self.inventory_border_color = (200, 200, 200)  # Border color
+        self.text_color = (255, 255, 255)  # Item text color
+        self.inventory_visible = False  # Whether inventory is displayed
+
+    def toggle_inventory(self):
+
+        self.inventory_visible = not self.inventory_visible
+
+    def draw_inventory(self, inventory):
+
+        if not self.inventory_visible:
+            return
+
+        # Inventory dimensions and position
+        width, height = 400, 200
+        x = self.display_w / 2 - width / 2
+        y = self.display_h - height
+        inventory_rect = pygame.Rect(x, y, width, height)
+
+        # Draw the background and border
+        pygame.draw.rect(self.display_surface, self.inventory_bg_color, inventory_rect)
+        pygame.draw.rect(self.display_surface, self.inventory_border_color, inventory_rect, 4)
+
+        # Render each item in the inventory
+        margin = 10
+        start_x = inventory_rect.x + margin
+        start_y = inventory_rect.y + margin
+        text_gap = 40
+
+        for idx, item in enumerate(inventory):
+            item_text = f"{idx + 1}. {item.name}"
+            text_surface = self.font.render(item_text, True, self.text_color)
+            self.display_surface.blit(text_surface, (start_x, start_y + idx * text_gap))

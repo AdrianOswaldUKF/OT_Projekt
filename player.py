@@ -59,6 +59,8 @@ class Player(Entity):
 
         # Inventory
         self.inventory = []
+        self.inventory_open = False
+        self.inventory_ui = None
 
     def load_images(self):
 
@@ -113,6 +115,7 @@ class Player(Entity):
         self.direction.y = int(keys[pygame.K_DOWN])-int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction else self.direction
 
+
     def interact(self):
 
         for obj in self.interactables_sprites:
@@ -153,6 +156,23 @@ class Player(Entity):
         if self.health <= 0:
             self.alive = False
             self.kill()
+
+    def equip_item(self, item):
+
+        if item.equippable:
+            if self.equipped:
+                self.equipped.unequip(self)
+            item.use(self)
+
+    def toggle_inventory(self):
+
+        self.inventory_open = not self.inventory_open
+
+        if self.inventory_open and self.inventory_ui:
+            self.inventory_ui.open(self.inventory)
+
+        elif self.inventory_ui:
+            self.inventory_ui.close()
 
     def update(self, delta_time):
 
