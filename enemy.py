@@ -158,6 +158,8 @@ class Enemy(Entity):
 
         self.move(delta_time)
         self.animate(delta_time)
+        if self.health <= 0:
+            self.kill()  # Remove the enemy from the game
 
     def deal_damage(self, delta_time):
 

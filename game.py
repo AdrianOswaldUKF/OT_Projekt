@@ -17,9 +17,6 @@ class Game:
         self.fullscreen = True
         pygame.display.set_caption('Hra')
 
-        # User Interface
-        self.gui = GUI(self.display_surface)
-
         # Sprite Groups
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
@@ -39,6 +36,9 @@ class Game:
         # Player
         self.player = self.tile_map.player
 
+        # User Interface
+        self.gui = GUI(self.display_surface, self.player)
+
         # Enemies
         self.enemy_event = pygame.event.custom_type()
         pygame.time.set_timer(self.enemy_event, 500)
@@ -54,7 +54,7 @@ class Game:
         self.current_fps = 0
 
         # Inventory GUI
-        self.inventory_gui = InventoryGUI(self.display_surface)
+        self.inventory_gui = InventoryGUI(self.display_surface, self.player)
 
     def toggle_fullscreen(self):
 
@@ -108,8 +108,12 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
                     self.inventory_gui.toggle_inventory()
 
+            # Handle inventory input
+            if self.inventory_gui.inventory_visible:
+                self.inventory_gui.handle_input(self.player)
+
             # Update
-            self.display_surface.fill((0, 255, 255))
+            self.display_surface.fill((0, 255, 255))  # Example background color
             self.all_sprites.draw(self.player.rect.center)
             self.all_sprites.update(delta_time)
             self.check_collisions(delta_time)

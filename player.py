@@ -2,11 +2,12 @@ import pygame
 from os.path import join
 from const import *
 from entity import Entity
+from item import Sword
 
 
 class Player(Entity):
 
-    def __init__(self, position, groups, collision_sprites, interactables_sprites):
+    def __init__(self, position, groups, collision_sprites, interactables_sprites, enemy_sprites):
 
         super().__init__(groups)
         self.isPlayer = True
@@ -16,6 +17,7 @@ class Player(Entity):
         self.position = position
 
         self.interactables_sprites = interactables_sprites
+        self.enemy_sprites = enemy_sprites
 
         # Static sprites
         self.static_sprites = {
@@ -62,6 +64,15 @@ class Player(Entity):
         self.inventory_open = False
         self.inventory_ui = None
 
+        # Attacking
+        self.attack_cooldown = 0.5  # Time between attacks
+        self.last_attack_time = 0
+
+        # Equip cooldown
+        self.equip_cooldown = 0.5  # 500 ms cooldown for equipping items
+        self.last_equip_time = 0  # Last time item was equipped
+
+
     def load_images(self):
 
         for state in self.static_sprites.keys():
@@ -106,9 +117,40 @@ class Player(Entity):
         # Center hitbox
         self.rect.center = self.hitbox_rect.center
 
+    def attack(self):
+        if self.equipped and isinstance(self.equipped, Sword):
+            # Create an attack hitbox based on the direction the player is facing
+            attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, 50, 20)  # Adjust size as needed
+
+            # Adjust attack area based on direction
+            if self.state == 'up':
+                attack_rect.center = self.rect.centerx, self.rect.top
+                attack_rect.height = 30  # Adjust the size as needed
+            elif self.state == 'down':
+                attack_rect.center = self.rect.centerx, self.rect.bottom
+                attack_rect.height = 30  # Adjust the size as needed
+            elif self.state == 'left':
+                attack_rect.center = self.rect.left, self.rect.centery
+                attack_rect.width = 30  # Adjust the size as needed
+            elif self.state == 'right':
+                attack_rect.center = self.rect.right, self.rect.centery
+                attack_rect.width = 30  # Adjust the size as needed
+
+            # Check for collisions with enemies in the attack area
+            for enemy in self.enemy_sprites:  # Assuming enemies are in group 1 (enemy_sprites)
+                if attack_rect.colliderect(enemy.rect):
+                    enemy.health -= self.equipped.damage  # Deal damage
+                    print(f'{enemy.enemy_name} hit for {self.equipped.damage} damage!')
+
+
     def input(self):
 
         keys = pygame.key.get_pressed()
+
+        # Attack input
+        if keys[pygame.K_SPACE] and pygame.time.get_ticks() - self.last_attack_time > self.attack_cooldown * 1000:
+            self.attack()
+            self.last_attack_time = pygame.time.get_ticks()
 
         # Movement
         self.direction.x = int(keys[pygame.K_RIGHT])-int(keys[pygame.K_LEFT])
@@ -158,11 +200,26 @@ class Player(Entity):
             self.kill()
 
     def equip_item(self, item):
+        current_time = pygame.time.get_ticks()
 
-        if item.equippable:
-            if self.equipped:
-                self.equipped.unequip(self)
-            item.use(self)
+        # Equip only if cooldown has passed
+        if current_time - self.last_equip_time > self.equip_cooldown * 1000:
+            if item.equippable:
+                # If item is already equipped, unequip it
+                if self.equipped:
+                    if self.equipped == item:  # Check if the same item is being unequipped
+                        self.equipped.unequip(self)
+                        self.equipped = None  # Clear equipped item
+                        print(f"Unequipped {item.name}")
+                        return  # Exit early if we're unequipping
+
+                # Equip the item if not already equipped
+                item.equip(self)
+                self.equipped = item
+                print(f"Equipped {item.name}")
+
+            # Reset equip time after equipping or unequipping
+            self.last_equip_time = current_time
 
     def toggle_inventory(self):
 

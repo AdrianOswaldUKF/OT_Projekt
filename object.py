@@ -44,7 +44,7 @@ class Object(pygame.sprite.Sprite):
 
 class Chest(Object):
 
-    def __init__(self, position, groups, player, collision_sprites):
+    def __init__(self, position, groups, player, item, collision_sprites):
 
         super().__init__('chest', position, groups, player, collision_sprites)
 
@@ -53,7 +53,7 @@ class Chest(Object):
 
         self.opened = False
 
-        self.inventory = [Sword('Lava Sword')]
+        self.inventory = [item]
 
     def interact(self):
 

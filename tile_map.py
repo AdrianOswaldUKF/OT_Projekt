@@ -4,6 +4,9 @@ from sprites import Sprite, CollisionSprite
 from player import Player
 from enemy import Slime
 from object import Chest
+from item import Sword
+
+fire_sword = Sword('Fire Sword', 5)
 
 class TileMap:
 
@@ -28,13 +31,13 @@ class TileMap:
 
         for entity in self.tile_map.get_layer_by_name('entities'):
             if entity.name == 'player':
-                self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites)
+                self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites)
 
             if entity.name == 'enemy_slime':
                 Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites, self.enemy_sprites)
 
             if entity.name == 'chest':
-                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, self.collision_sprites)
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, fire_sword, self.collision_sprites)
 
 
         for x, y, image in self.tile_map.get_layer_by_name('map_border').tiles():
