@@ -4,14 +4,19 @@ from sprites import Sprite, CollisionSprite
 from player import Player
 from enemy import Slime
 from object import Chest
-from item import Sword
+from sword import FireSword, WaterSword, BasicSword, EarthSword, AirSword
 
-fire_sword = Sword('Fire Sword', 5)
+basic_sword = BasicSword()
+water_sword = WaterSword()
+fire_sword = FireSword()
+earth_sword = EarthSword()
+air_sword = AirSword()
 
 class TileMap:
 
-    def __init__(self, path, all_sprites, collision_sprites, enemy_sprites, interactables_sprites):
+    def __init__(self, display_surface, path, all_sprites, collision_sprites, enemy_sprites, interactables_sprites):
 
+        self.display_surface = display_surface
         self.player = None
         self.tile_map = load_pygame(path)
         self.all_sprites = all_sprites
@@ -37,7 +42,19 @@ class TileMap:
                 Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites, self.enemy_sprites)
 
             if entity.name == 'chest':
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, basic_sword, self.collision_sprites)
+
+            if entity.name == 'chest2':
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, air_sword, self.collision_sprites)
+
+            if entity.name == 'chest3':
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, water_sword, self.collision_sprites)
+
+            if entity.name == 'chest4':
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, fire_sword, self.collision_sprites)
+
+            if entity.name == 'chest5':
+                Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, earth_sword, self.collision_sprites)
 
 
         for x, y, image in self.tile_map.get_layer_by_name('map_border').tiles():

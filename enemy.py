@@ -189,7 +189,7 @@ class Slime(Enemy):
         self.speed = SLIME_SPEED  # const.py
 
         # HP
-        self.health = 20
+        self.health = SLIME_HEALTH
 
         # Damage
-        self.damage = 5
+        self.damage = SLIME_DAMAGE

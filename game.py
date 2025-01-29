@@ -25,6 +25,7 @@ class Game:
 
         # Map
         self.tile_map = TileMap(
+            self.display_surface,
             join('assets', 'map', 'tmx', 'test.tmx'),
             self.all_sprites,
             self.collision_sprites,

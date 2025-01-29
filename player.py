@@ -2,7 +2,8 @@ import pygame
 from os.path import join
 from const import *
 from entity import Entity
-from item import Sword
+from slash import Slash
+from sword import Sword
 
 
 class Player(Entity):
@@ -15,6 +16,8 @@ class Player(Entity):
         self.render_priority = 0
 
         self.position = position
+        self.groups = groups
+
 
         self.interactables_sprites = interactables_sprites
         self.enemy_sprites = enemy_sprites
@@ -68,6 +71,9 @@ class Player(Entity):
         self.attack_cooldown = 0.5  # Time between attacks
         self.last_attack_time = 0
 
+        self.is_attacking = False
+        self.slash = None  # For tracking the current slash object
+
         # Equip cooldown
         self.equip_cooldown = 0.5  # 500 ms cooldown for equipping items
         self.last_equip_time = 0  # Last time item was equipped
@@ -118,28 +124,35 @@ class Player(Entity):
         self.rect.center = self.hitbox_rect.center
 
     def attack(self):
+
         if self.equipped and isinstance(self.equipped, Sword):
-            # Create an attack hitbox based on the direction the player is facing
-            attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, 50, 20)  # Adjust size as needed
 
-            # Adjust attack area based on direction
+            attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, 32, 35)
+
+            # Attack based on direction
             if self.state == 'up':
-                attack_rect.center = self.rect.centerx, self.rect.top
-                attack_rect.height = 30  # Adjust the size as needed
-            elif self.state == 'down':
-                attack_rect.center = self.rect.centerx, self.rect.bottom
-                attack_rect.height = 30  # Adjust the size as needed
-            elif self.state == 'left':
-                attack_rect.center = self.rect.left, self.rect.centery
-                attack_rect.width = 30  # Adjust the size as needed
-            elif self.state == 'right':
-                attack_rect.center = self.rect.right, self.rect.centery
-                attack_rect.width = 30  # Adjust the size as needed
+                attack_rect.center = (self.rect.centerx, self.rect.top - 15)
+                attack_rect.height = 30
 
-            # Check for collisions with enemies in the attack area
-            for enemy in self.enemy_sprites:  # Assuming enemies are in group 1 (enemy_sprites)
+            elif self.state == 'down':
+                attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
+                attack_rect.height = 30
+
+            elif self.state == 'left':
+                attack_rect.center = (self.rect.left - 15, self.rect.centery)
+                attack_rect.width = 30
+
+            elif self.state == 'right':
+                attack_rect.center = (self.rect.right + 20, self.rect.centery)
+                attack_rect.width = 30
+
+            self.slash = Slash(attack_rect.center, self.direction, self.equipped.name, self.groups)
+            self.is_attacking = False
+
+            for enemy in self.enemy_sprites:
+
                 if attack_rect.colliderect(enemy.rect):
-                    enemy.health -= self.equipped.damage  # Deal damage
+                    enemy.health -= self.equipped.damage
                     print(f'{enemy.enemy_name} hit for {self.equipped.damage} damage!')
 
 
@@ -169,7 +182,7 @@ class Player(Entity):
     def is_facing_object(self, obj):
 
         # Check proximity
-        interaction_distance = 30  # Adjust as needed
+        interaction_distance = PLAYER_INTERACTION_DISTANCE
         player_center = pygame.Vector2(self.hitbox_rect.center)
         object_center = pygame.Vector2(obj.rect.center)
 
@@ -200,6 +213,7 @@ class Player(Entity):
             self.kill()
 
     def equip_item(self, item):
+
         current_time = pygame.time.get_ticks()
 
         # Equip only if cooldown has passed

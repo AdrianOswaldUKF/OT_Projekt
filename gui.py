@@ -51,6 +51,7 @@ class InventoryGUI(GUI):
         self.inventory_bg_color = (50, 50, 50)  # Background color
         self.inventory_border_color = (200, 200, 200)  # Border color
         self.text_color = (255, 255, 255)  # Item text color
+        self.font = pygame.font.Font(None, 24)  # Smaller font size
         self.inventory_visible = False  # Whether inventory is displayed
         self.selected_item_index = 0  # Track the selected item in the inventory
 
@@ -63,7 +64,6 @@ class InventoryGUI(GUI):
         self.inventory_visible = not self.inventory_visible
 
     def draw_inventory(self, inventory):
-
         if not self.inventory_visible:
             return
 
@@ -78,10 +78,10 @@ class InventoryGUI(GUI):
         pygame.draw.rect(self.display_surface, self.inventory_border_color, inventory_rect, 4)
 
         # Render each item in the inventory
-        margin = 10
+        margin = 20
         start_x = inventory_rect.x + margin
         start_y = inventory_rect.y + margin
-        text_gap = 40
+        text_gap = 30
 
         for idx, item in enumerate(inventory):
             item_text = f"{idx + 1}. {item.name}"
@@ -102,7 +102,9 @@ class InventoryGUI(GUI):
 
             self.display_surface.blit(text_surface, (start_x, start_y + idx * text_gap))
 
-
+            # Draw the item sprite (if it has one)
+            if hasattr(item, 'image'):
+                self.display_surface.blit(item.image, (start_x + 200, start_y + idx * text_gap))  # Example positioning
 
     def handle_input(self, player):
         """Handle input to equip items using number keys with cooldown."""

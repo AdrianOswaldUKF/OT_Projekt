@@ -1,7 +1,6 @@
 import pygame
 import os
 from const import *
-from item import Sword
 
 class Object(pygame.sprite.Sprite):
 
