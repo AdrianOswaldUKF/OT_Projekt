@@ -69,15 +69,15 @@ class Player(Entity):
 
         # Attacking
         self.attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, PLAYER_ATTACK_WIDTH, PLAYER_ATTACK_HEIGHT)
-        self.attack_cooldown = 0.5  # Time between attacks
+        self.attack_cooldown = PLAYER_ATTACK_COOLDOWN
         self.last_attack_time = 0
 
         self.is_attacking = False
-        self.slash = None  # For tracking the current slash object
+        self.slash = None
 
         # Equip cooldown
-        self.equip_cooldown = 0.5  # 500 ms cooldown for equipping items
-        self.last_equip_time = 0  # Last time item was equipped
+        self.equip_cooldown = PLAYER_EQUIP_COOLDOWN
+        self.last_equip_time = 0
 
 
     def load_images(self):
