@@ -68,6 +68,7 @@ class Player(Entity):
         self.inventory_ui = None
 
         # Attacking
+        self.attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, PLAYER_ATTACK_WIDTH, PLAYER_ATTACK_HEIGHT)
         self.attack_cooldown = 0.5  # Time between attacks
         self.last_attack_time = 0
 
@@ -127,31 +128,29 @@ class Player(Entity):
 
         if self.equipped and isinstance(self.equipped, Sword):
 
-            attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, 32, 35)
-
             # Attack based on direction
             if self.state == 'up':
-                attack_rect.center = (self.rect.centerx, self.rect.top - 15)
-                attack_rect.height = 30
+                self.attack_rect.center = (self.rect.centerx, self.rect.top - 15)
+                self.attack_rect.height = 30
 
             elif self.state == 'down':
-                attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
-                attack_rect.height = 30
+                self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
+                self.attack_rect.height = 30
 
             elif self.state == 'left':
-                attack_rect.center = (self.rect.left - 15, self.rect.centery)
-                attack_rect.width = 30
+                self.attack_rect.center = (self.rect.left - 15, self.rect.centery)
+                self.attack_rect.width = 30
 
             elif self.state == 'right':
-                attack_rect.center = (self.rect.right + 20, self.rect.centery)
-                attack_rect.width = 30
+                self.attack_rect.center = (self.rect.right + 20, self.rect.centery)
+                self.attack_rect.width = 30
 
-            self.slash = Slash(attack_rect.center, self.direction, self.equipped.name, self.groups)
+            self.slash = Slash(self.attack_rect.center, self.direction, self.equipped.name, self.groups)
             self.is_attacking = False
 
             for enemy in self.enemy_sprites:
 
-                if attack_rect.colliderect(enemy.rect):
+                if self.attack_rect.colliderect(enemy.rect):
                     enemy.health -= self.equipped.damage
                     print(f'{enemy.enemy_name} hit for {self.equipped.damage} damage!')
 
