@@ -116,6 +116,8 @@ class Enemy(Entity):
     def apply_knockback(self, knockback_direction):
         knockback_speed = KNOCKBACK_SPEED
         self.knockback = True
+
+
         self.direction = knockback_direction * knockback_speed
         self.knockback_duration = KNOCKBACK_DURATION
 
@@ -135,6 +137,7 @@ class Enemy(Entity):
                 self.direction.y = 0
 
             self.rect.center = self.hitbox_rect.center
+
             self.knockback_duration -= delta_time
 
             if self.knockback_duration <= 0:
@@ -142,7 +145,7 @@ class Enemy(Entity):
 
             return
 
-        if self.stunned or self.knockback:
+        if self.stunned:
             return
 
         self.update_los()
