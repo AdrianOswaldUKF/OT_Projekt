@@ -127,19 +127,19 @@ class Player(Entity):
 
             # Attack based on direction
             if self.state == 'up':
-                self.attack_rect.center = (self.rect.centerx, self.rect.top - 20)
+                self.attack_rect.center = (self.rect.centerx, self.rect.top - 15)
                 self.attack_rect.height = 50
 
             elif self.state == 'down':
-                self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 20)
+                self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
                 self.attack_rect.height = 50
 
             elif self.state == 'left':
-                self.attack_rect.center = (self.rect.left - 20, self.rect.centery)
+                self.attack_rect.center = (self.rect.left - 15, self.rect.centery)
                 self.attack_rect.width = 50
 
             elif self.state == 'right':
-                self.attack_rect.center = (self.rect.right + 25, self.rect.centery)
+                self.attack_rect.center = (self.rect.right + 20, self.rect.centery)
                 self.attack_rect.width = 50
 
             self.slash = Slash(self.attack_rect, self.attack_rect.center, self.direction, self.equipped.name, self.groups)
@@ -157,10 +157,9 @@ class Player(Entity):
             self.last_attack_time = pygame.time.get_ticks()
 
         # Movement
-        self.direction.x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed
-        self.direction.y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
-        self.direction = self.direction.normalize() if self.direction else self.direction
-
+        self.direction.x = ((keys[pygame.K_d] - keys[pygame.K_a]) + (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT])) * self.speed
+        self.direction.y = ((keys[pygame.K_s] - keys[pygame.K_w]) + (keys[pygame.K_DOWN] - keys[pygame.K_UP])) * self.speed
+        self.direction = self.direction.normalize() if self.direction.length() > 0 else self.direction
 
     def interact(self):
 

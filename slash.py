@@ -49,3 +49,4 @@ class Slash(pygame.sprite.Sprite):
             self.kill()
         else:
             self.image = self.slash_animation_sprites[int(self.frame)]
+            self.image = pygame.transform.scale(self.slash_animation_sprites[int(self.frame)], self.attack_rect.size)
