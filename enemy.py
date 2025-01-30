@@ -77,6 +77,9 @@ class Enemy(Entity):
         self.stunned = False
         self.stun_duration = 0
 
+        self.knockback = False
+        self.knockback_duration = 0
+
     def load_images(self):
 
         folder_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name)
@@ -109,7 +112,34 @@ class Enemy(Entity):
 
         self.line_of_sight.center = self.rect.center
 
+    def apply_knockback(self, knockback_direction):
+        knockback_speed = 100  # Set the speed manually or make it configurable
+        self.knockback = True
+        self.direction = knockback_direction * knockback_speed
+        self.knockback_duration = 1.0
+
     def move(self, delta_time):
+
+        if self.knockback:
+            original_position = self.hitbox_rect.topleft
+
+            self.hitbox_rect.x += self.direction.x * delta_time
+            if self.collision('horizontal'):
+                self.hitbox_rect.x = original_position[0]
+                self.direction.x = 0
+
+            self.hitbox_rect.y += self.direction.y * delta_time
+            if self.collision('vertical'):
+                self.hitbox_rect.y = original_position[1]
+                self.direction.y = 0
+
+            self.rect.center = self.hitbox_rect.center
+            self.knockback_duration -= delta_time
+
+            if self.knockback_duration <= 0:
+                self.knockback = False
+
+            return
 
         if self.stunned:
             return
