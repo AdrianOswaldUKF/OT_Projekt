@@ -247,7 +247,7 @@ class Enemy(Entity):
             self.burn_timer += delta_time
 
             if self.burn_timer >= 1:
-                self.health -= 10
+                self.health -= 5
                 self.burn_timer = 0
 
 
@@ -270,7 +270,7 @@ class Enemy(Entity):
 
     def render_health_bar(self, screen, offset):
 
-        max_bar_width = SLIME_SIZE[0] * 0.005
+        max_bar_width = SLIME_SIZE[0] * 0.02
         bar_height = 5
 
         health_percentage = self.health / self.max_health
@@ -365,6 +365,27 @@ class FireSlime(Enemy):
 
         # Animation
         self.animation_speed = SLIME_ANIMATION_SPEED
+
+        # Burning Effect
+        self.burning_sprites = []
+        self.burn_frame = 0
+        self.load_burning_images()
+
+    def load_burning_images(self):
+
+        folder_path = os.path.join('assets', 'sprites', 'effects', 'fire')
+
+        if os.path.exists(folder_path):
+
+            file_count = len(
+                [file for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))])
+
+            for i in range(file_count - 1):
+
+                file_path = os.path.join('assets', 'sprites', 'effects', 'water_splash', f'{i}.png')
+
+                if file_path:
+                    self.burning_sprites.append(pygame.image.load(file_path).convert_alpha())
 
 class EarthSlime(Enemy):
 

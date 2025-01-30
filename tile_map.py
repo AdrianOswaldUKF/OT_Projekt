@@ -95,8 +95,9 @@ class TileMap:
                 self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites)
 
             if entity.name == 'slime_spawner':
-                spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
-                self.spawners.append(spawner)
+                #spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
+                #self.spawners.append(spawner)
+                FireSlime((entity.x, entity.y),(self.all_sprites, self.enemy_sprites),self.player,self.collision_sprites,self.enemy_sprites)
 
             if entity.name == 'chest':
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, basic_sword, self.collision_sprites)

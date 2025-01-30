@@ -54,6 +54,8 @@ class WaterSword(Sword):
         bonus_damage = 8 if enemy.element == 'Fire' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
+        if enemy.element == 'Fire':
+            enemy.burning = True
 
 # Earth Sword (Knockback Effect)
 class EarthSword(Sword):
