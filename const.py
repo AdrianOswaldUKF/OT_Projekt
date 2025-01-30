@@ -29,6 +29,10 @@ PLAYER_INVENTORY_MOUSE_EQUIP_COOLDOWN = 200 # 200ms
 # Slash
 SLASH_SPEED = 20
 
+# Knockback
+KNOCKBACK_SPEED = 100
+KNOCKBACK_DURATION = 1.0
+
 ## Enemies ##
 ENEMY_LOS = (300, 300) # LOS dimensions (width, height)
 ENEMY_DISTANCE_THRESHOLD = 40 # Minimum distance threshold

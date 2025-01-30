@@ -77,6 +77,7 @@ class Enemy(Entity):
         self.stunned = False
         self.stun_duration = 0
 
+        # Knockback
         self.knockback = False
         self.knockback_duration = 0
 
@@ -113,10 +114,10 @@ class Enemy(Entity):
         self.line_of_sight.center = self.rect.center
 
     def apply_knockback(self, knockback_direction):
-        knockback_speed = 100  # Set the speed manually or make it configurable
+        knockback_speed = KNOCKBACK_SPEED
         self.knockback = True
         self.direction = knockback_direction * knockback_speed
-        self.knockback_duration = 1.0
+        self.knockback_duration = KNOCKBACK_DURATION
 
     def move(self, delta_time):
 
