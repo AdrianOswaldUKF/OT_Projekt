@@ -106,11 +106,11 @@ class Game:
                     self.toggle_fullscreen()
 
                 # Interact
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                     self.player.interact()
 
                 # Toggle inventory
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                     self.inventory_gui.toggle_inventory()
 
             # In your main game loop
