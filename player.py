@@ -18,7 +18,6 @@ class Player(Entity):
         self.position = position
         self.groups = groups
 
-
         self.interactables_sprites = interactables_sprites
         self.enemy_sprites = enemy_sprites
 
@@ -88,9 +87,7 @@ class Player(Entity):
                 self.static_sprites[state] = (pygame.image.load(file_path).convert_alpha())
 
         for state in self.animation_sprites.keys():
-
             for i in range(1, 3):
-
                 file_path = join('assets', 'sprites', 'player', f'player_{state}{i}.png')
                 if file_path:
                     self.animation_sprites[state].append(pygame.image.load(file_path).convert_alpha())
@@ -130,30 +127,25 @@ class Player(Entity):
 
             # Attack based on direction
             if self.state == 'up':
-                self.attack_rect.center = (self.rect.centerx, self.rect.top - 15)
-                self.attack_rect.height = 30
+                self.attack_rect.center = (self.rect.centerx, self.rect.top - 20)
+                self.attack_rect.height = 50
 
             elif self.state == 'down':
-                self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
-                self.attack_rect.height = 30
+                self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 20)
+                self.attack_rect.height = 50
 
             elif self.state == 'left':
-                self.attack_rect.center = (self.rect.left - 15, self.rect.centery)
-                self.attack_rect.width = 30
+                self.attack_rect.center = (self.rect.left - 20, self.rect.centery)
+                self.attack_rect.width = 50
 
             elif self.state == 'right':
-                self.attack_rect.center = (self.rect.right + 20, self.rect.centery)
-                self.attack_rect.width = 30
+                self.attack_rect.center = (self.rect.right + 25, self.rect.centery)
+                self.attack_rect.width = 50
 
-            self.slash = Slash(self.attack_rect.center, self.direction, self.equipped.name, self.groups)
+            self.slash = Slash(self.attack_rect, self.attack_rect.center, self.direction, self.equipped.name, self.groups)
             self.is_attacking = False
 
-            for enemy in self.enemy_sprites:
-
-                if self.attack_rect.colliderect(enemy.rect):
-                    enemy.health -= self.equipped.damage
-                    print(f'{enemy.enemy_name} hit for {self.equipped.damage} damage!')
-
+            self.equipped.attack(self.attack_rect, self, self.enemy_sprites)
 
     def input(self):
 
@@ -165,8 +157,8 @@ class Player(Entity):
             self.last_attack_time = pygame.time.get_ticks()
 
         # Movement
-        self.direction.x = int(keys[pygame.K_RIGHT])-int(keys[pygame.K_LEFT])
-        self.direction.y = int(keys[pygame.K_DOWN])-int(keys[pygame.K_UP])
+        self.direction.x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed
+        self.direction.y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
         self.direction = self.direction.normalize() if self.direction else self.direction
 
 
@@ -175,24 +167,23 @@ class Player(Entity):
         for obj in self.interactables_sprites:
 
             if self.is_facing_object(obj):
-                obj.interact()  # Trigger interaction
-                return  # Only interact with one object at a time
+                obj.interact()
+                return
 
     def is_facing_object(self, obj):
 
-        # Check proximity
         interaction_distance = PLAYER_INTERACTION_DISTANCE
         player_center = pygame.Vector2(self.hitbox_rect.center)
         object_center = pygame.Vector2(obj.rect.center)
 
-        # Calculate distance between the centers
+
         distance = player_center - object_center
 
-        # If the distance is too great, return False
+
         if distance.length() > interaction_distance:
             return False
 
-        # Check if the player is facing the object
+
         if self.state == 'up' and distance.y > 0 and abs(distance.x) < interaction_distance:
             return True
         if self.state == 'down' and distance.y < 0 and abs(distance.x) < interaction_distance:
@@ -202,7 +193,7 @@ class Player(Entity):
         if self.state == 'right' and distance.x < 0 and abs(distance.y) < interaction_distance:
             return True
 
-        # If none of the conditions are met, the player is not facing the object properly
+
         return False
 
     def check_health(self):
@@ -215,23 +206,18 @@ class Player(Entity):
 
         current_time = pygame.time.get_ticks()
 
-        # Equip only if cooldown has passed
         if current_time - self.last_equip_time > self.equip_cooldown * 1000:
             if item.equippable:
-                # If item is already equipped, unequip it
                 if self.equipped:
-                    if self.equipped == item:  # Check if the same item is being unequipped
+                    if self.equipped == item:
                         self.equipped.unequip(self)
-                        self.equipped = None  # Clear equipped item
-                        print(f"Unequipped {item.name}")
-                        return  # Exit early if we're unequipping
+                        self.equipped = None
+                        return
 
-                # Equip the item if not already equipped
                 item.equip(self)
                 self.equipped = item
-                print(f"Equipped {item.name}")
 
-            # Reset equip time after equipping or unequipping
+
             self.last_equip_time = current_time
 
     def toggle_inventory(self):

@@ -2,7 +2,7 @@ from const import *
 from pytmx import load_pygame
 from sprites import Sprite, CollisionSprite
 from player import Player
-from enemy import Slime
+from enemy import Slime, FireSlime, WaterSlime, EarthSlime, AirSlime
 from object import Chest
 from sword import FireSword, WaterSword, BasicSword, EarthSword, AirSword
 

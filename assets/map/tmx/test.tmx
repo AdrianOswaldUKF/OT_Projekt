@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.1" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="16">
+<map version="1.10" tiledversion="1.11.1" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="23">
  <tileset firstgid="1" source="../tsx/basic/terrain_tiles_v2.tsx"/>
  <tileset firstgid="161" source="../tsx/basic/fence_tiles.tsx"/>
  <layer id="1" name="terrain" width="20" height="20">
@@ -33,6 +33,10 @@
   <object id="11" name="chest3" gid="16" x="320" y="576" width="32" height="32"/>
   <object id="13" name="chest4" gid="16" x="224" y="576" width="32" height="32"/>
   <object id="14" name="chest5" gid="16" x="128" y="576" width="32" height="32"/>
+  <object id="16" name="enemy_slime" gid="16" x="480" y="224" width="32" height="32"/>
+  <object id="20" name="enemy_slime" gid="16" x="448" y="357" width="32" height="32"/>
+  <object id="21" name="enemy_slime" gid="16" x="348" y="299" width="32" height="32"/>
+  <object id="22" name="enemy_slime" gid="16" x="424" y="143" width="32" height="32"/>
  </objectgroup>
  <layer id="3" name="map_border" width="20" height="20">
   <data encoding="csv">

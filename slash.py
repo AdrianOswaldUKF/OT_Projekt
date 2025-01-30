@@ -6,20 +6,22 @@ from const import SLASH_SPEED
 
 class Slash(pygame.sprite.Sprite):
 
-    def __init__(self, position, direction, sword_type, groups):
+    def __init__(self, attack_rect, position, direction, sword_type, groups):
 
         super().__init__(groups)
 
         self.isSlash = True
 
-        # Slash animation images
-        self.slash_animation_sprites = []
-        self.load_slash_images(sword_type)
 
         # Position and direction of the slash
+        self.attack_rect = attack_rect
         self.position = position
         self.direction = direction
         self.frame = 0
+
+        # Slash animation images
+        self.slash_animation_sprites = []
+        self.load_slash_images(sword_type)
 
         # Image and rect
         self.image = self.slash_animation_sprites[0]
@@ -37,7 +39,7 @@ class Slash(pygame.sprite.Sprite):
 
             if file_path:
                 self.slash_animation_sprites.append(pygame.image.load(file_path).convert_alpha())
-                self.slash_animation_sprites[i] = pygame.transform.scale(self.slash_animation_sprites[i], (32, 35))
+                self.slash_animation_sprites[i] = pygame.transform.scale(self.slash_animation_sprites[i], self.attack_rect.size)
 
     def update(self, delta_time):
 

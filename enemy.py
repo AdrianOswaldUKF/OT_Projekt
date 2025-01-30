@@ -1,6 +1,6 @@
 import pygame
 import os
-from random import randint
+from random import randint, uniform
 from const import *
 from entity import Entity
 
@@ -55,12 +55,27 @@ class Enemy(Entity):
         self.is_waiting = False # Flag to check if the enemy is waiting
 
         # Health
-        self.health = 0
+        self.health = 1
+        self.max_health = self.health
 
         # Damage
         self.damage = 0
         self.damage_cooldown = 0.5
         self.last_damage = 0
+
+        # Element
+        self.element = "None"
+
+        # Burning Effect
+        self.burning_sprites = []
+        self.burn_frame = 0
+        self.load_burning_images()
+
+        # Status Effects
+        self.burning = False
+        self.burn_timer = 0
+        self.stunned = False
+        self.stun_duration = 0
 
     def load_images(self):
 
@@ -68,29 +83,46 @@ class Enemy(Entity):
 
         file_count = len([file for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))])
 
-        for i in range(file_count):
+        for i in range(file_count-1):
 
             file_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name, f'{i}.png')
 
             if file_path:
                 self.animation_sprites.append(pygame.image.load(file_path).convert_alpha())
 
+    def load_burning_images(self):
+
+        folder_path = os.path.join('assets', 'sprites', 'effects', 'fire')
+
+        if os.path.exists(folder_path):
+
+            file_count = len([file for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))])
+
+            for i in range(file_count-1):
+
+                file_path = os.path.join('assets', 'sprites', 'effects', 'fire', f'{i}.png')
+
+                if file_path:
+                    self.burning_sprites.append(pygame.image.load(file_path).convert_alpha())
+
     def update_los(self):
 
-        # Update the LOS position to be relative to the enemy
         self.line_of_sight.center = self.rect.center
 
     def move(self, delta_time):
+
+        if self.stunned:
+            return
+
         self.update_los()
 
-        # Check if the player is in the LOS
         if self.line_of_sight.colliderect(self.player.rect):
             self.chasing = True
         else:
             self.chasing = False
 
         if self.chasing and self.player.alive:
-            # Chase the player
+
             player_pos = pygame.Vector2(self.player.rect.center)
             enemy_pos = pygame.Vector2(self.rect.center)
             direction_vector = player_pos - enemy_pos
@@ -100,24 +132,25 @@ class Enemy(Entity):
             else:
                 self.direction = pygame.Vector2()
 
-            # Avoidance Logic - Push away from nearby enemies
             for enemy in self.enemy_sprites:
-                if enemy != self:  # Avoid itself
+                if enemy != self:
                     distance = pygame.Vector2(self.rect.center) - pygame.Vector2(enemy.rect.center)
                     if distance.length() < ENEMY_DISTANCE_THRESHOLD:
-                        if distance.length() != 0:  # Avoid division by zero
-                            self.direction += distance.normalize() * 0.5  # Push away
+                        if distance.length() != 0:
+                            self.direction += distance.normalize() * 0.5
 
         elif self.is_waiting:
-            # Wait before moving again
+
             self.wait_time -= delta_time
+
             if self.wait_time <= 0:
                 self.is_waiting = False
                 self.move_time = self.move_duration
 
         else:
-            # Wander randomly
+
             self.move_time -= delta_time
+
             if self.move_time <= 0:
                 self.is_waiting = True
                 random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
@@ -130,36 +163,62 @@ class Enemy(Entity):
                 self.wait_time = self.wait_duration
 
 
-        # Handle combined movement and collision
         original_position = self.hitbox_rect.topleft
 
-        # Attempt horizontal movement
+
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
         if self.collision('horizontal'):
-            self.hitbox_rect.x = original_position[0]  # Revert horizontal movement
-            self.direction.x = 0  # Stop horizontal movement
+            self.hitbox_rect.x = original_position[0]
+            self.direction.x = 0
 
-        # Attempt vertical movement
+
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
         if self.collision('vertical'):
-            self.hitbox_rect.y = original_position[1]  # Revert vertical movement
-            self.direction.y = 0  # Stop vertical movement
+            self.hitbox_rect.y = original_position[1]
+            self.direction.y = 0
 
-        # Update the rect's center to match the hitbox
         self.rect.center = self.hitbox_rect.center
 
     def animate(self, delta_time):
 
+
+        if self.stunned:
+            self.burn_animation(delta_time)
+            return
+
         self.frame += self.animation_speed * delta_time
         self.image = self.animation_sprites[int(self.frame) % len(self.animation_sprites)]
-        self.image = pygame.transform.scale(self.image, SLIME_SIZE)
+        self.image = pygame.transform.scale(self.image, self.rect.size)
+
+        self.burn_animation(delta_time)
+
+    def burn_animation(self, delta_time):
+
+        if self.burning and self.burning_sprites:
+            self.burn_frame += delta_time * 10
+            burn_image = self.burning_sprites[int(self.burn_frame) % len(self.burning_sprites)]
+
+            burn_image = pygame.transform.scale(burn_image, self.image.get_size())
+
+            self.image.blit(burn_image, (0, 0))
+
 
     def update(self, delta_time):
 
         self.move(delta_time)
         self.animate(delta_time)
+
         if self.health <= 0:
-            self.kill()  # Remove the enemy from the game
+            self.kill()
+
+        if self.burning:
+
+            self.burn_timer += delta_time
+
+            if self.burn_timer >= 1:
+                self.health -= 10
+                self.burn_timer = 0
+
 
     def deal_damage(self, delta_time):
 
@@ -173,6 +232,26 @@ class Enemy(Entity):
         self.player.health -= self.damage
         self.last_damage = 0
 
+        if self.stunned:
+            self.stun_duration -= delta_time
+            if self.stun_duration <= 0:
+                self.stunned = False
+
+    def render_health_bar(self, screen, offset):
+
+        max_bar_width = SLIME_SIZE[0] * 0.005
+        bar_height = 5
+
+        health_percentage = self.health / self.max_health
+        bar_width = max_bar_width * health_percentage
+
+        bar_x = self.rect.centerx - bar_width / 2
+        bar_y = self.rect.top - 10
+        bar_x += offset.x
+        bar_y += offset.y
+
+        pygame.draw.rect(screen, (50, 50, 50), (bar_x, bar_y, max_bar_width, bar_height))
+        pygame.draw.rect(screen, (255, 0, 0), (bar_x, bar_y, bar_width, bar_height))
 
 
 class Slime(Enemy):
@@ -181,15 +260,132 @@ class Slime(Enemy):
 
         super().__init__('slime', position, groups, player, collision_sprites, enemy_sprites)
 
-        self.image = pygame.transform.scale(self.image, SLIME_SIZE)  # const.py
+
+        scale_factor = uniform(0.5, 1.8)
+
+
+        self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
+        self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX) # const.py
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
 
+        # Stats
+        if scale_factor < 1:
+            self.speed = SLIME_SPEED * (1 / scale_factor)
+        else:
+            self.speed = SLIME_SPEED / scale_factor
+
+        self.health = int(SLIME_HEALTH * scale_factor)
+        self.damage = int(SLIME_DAMAGE * scale_factor)
+
+        # Animation
         self.animation_speed = SLIME_ANIMATION_SPEED
-        self.speed = SLIME_SPEED  # const.py
 
-        # HP
-        self.health = SLIME_HEALTH
 
-        # Damage
-        self.damage = SLIME_DAMAGE
+class WaterSlime(Enemy):
+
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+
+        super().__init__('water_slime', position, groups, player, collision_sprites, enemy_sprites)
+
+        scale_factor = uniform(0.8, 1.5)
+
+        self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
+        self.image = pygame.transform.scale(self.image, self.size)
+        self.rect = self.image.get_frect(center=self.rect.center)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+
+        # Stats
+        if scale_factor < 1:
+            self.speed = SLIME_SPEED * (1 / scale_factor)
+        else:
+            self.speed = SLIME_SPEED / scale_factor
+
+        self.health = int(WATER_SLIME_HEALTH * scale_factor)
+        self.damage = int(WATER_SLIME_DAMAGE * scale_factor)
+        self.element = 'Water'
+
+        # Animation
+        self.animation_speed = SLIME_ANIMATION_SPEED
+
+class FireSlime(Enemy):
+
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+
+        super().__init__('fire_slime', position, groups, player, collision_sprites, enemy_sprites)
+
+        scale_factor = uniform(0.8, 1.5)
+
+
+        self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
+        self.image = pygame.transform.scale(self.image, self.size)
+        self.rect = self.image.get_frect(center=self.rect.center)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+
+        # Stats
+        if scale_factor < 1:
+            self.speed = SLIME_SPEED * (1 / scale_factor)
+        else:
+            self.speed = SLIME_SPEED / scale_factor
+
+        self.health = int(FIRE_SLIME_HEALTH * scale_factor)
+        self.damage = int(FIRE_SLIME_DAMAGE * scale_factor)
+        self.element = 'Fire'
+
+        # Animation
+        self.animation_speed = SLIME_ANIMATION_SPEED
+
+class EarthSlime(Enemy):
+
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+
+        super().__init__('earth_slime', position, groups, player, collision_sprites, enemy_sprites)
+
+
+        scale_factor = uniform(0.8, 1.5)
+
+
+        self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
+        self.image = pygame.transform.scale(self.image, self.size)
+        self.rect = self.image.get_frect(center=self.rect.center)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+
+        # Stats
+        if scale_factor < 1:
+            self.speed = SLIME_SPEED * (1 / scale_factor)
+        else:
+            self.speed = SLIME_SPEED / scale_factor
+
+        self.health = int(EARTH_SLIME_HEALTH * scale_factor)
+        self.damage = int(EARTH_SLIME_DAMAGE * scale_factor)
+        self.element = 'Earth'
+
+        # Animation
+        self.animation_speed = SLIME_ANIMATION_SPEED
+
+class AirSlime(Enemy):
+
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+
+        super().__init__('air_slime', position, groups, player, collision_sprites, enemy_sprites)
+
+        scale_factor = uniform(0.8, 1.5)
+
+
+        self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
+        self.image = pygame.transform.scale(self.image, self.size)
+        self.rect = self.image.get_frect(center=self.rect.center)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+
+        # Stats
+        if scale_factor < 1:
+            self.speed = SLIME_SPEED * (1 / scale_factor)
+        else:
+            self.speed = SLIME_SPEED / scale_factor
+
+        self.health = int(AIR_SLIME_HEALTH * scale_factor)
+        self.damage = int(AIR_SLIME_DAMAGE * scale_factor)
+        self.element = 'Air'
+
+        # Animation
+        self.animation_speed = SLIME_ANIMATION_SPEED

@@ -109,9 +109,15 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
                     self.inventory_gui.toggle_inventory()
 
-            # Handle inventory input
+            # In your main game loop
             if self.inventory_gui.inventory_visible:
+                # Handle keyboard input for equipping items
                 self.inventory_gui.handle_input(self.player)
+
+                # Handle mouse input for switching items
+                if pygame.mouse.get_pressed()[0]:  # Left click
+                    mouse_pos = pygame.mouse.get_pos()
+                    self.inventory_gui.handle_mouse_input(mouse_pos, self.player, self.player.inventory)
 
             # Update
             self.display_surface.fill((0, 255, 255))  # Example background color
