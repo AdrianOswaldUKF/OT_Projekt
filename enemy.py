@@ -142,7 +142,7 @@ class Enemy(Entity):
 
             return
 
-        if self.stunned:
+        if self.stunned or self.knockback:
             return
 
         self.update_los()
@@ -173,7 +173,6 @@ class Enemy(Entity):
         elif self.is_waiting:
 
             self.wait_time -= delta_time
-
             if self.wait_time <= 0:
                 self.is_waiting = False
                 self.move_time = self.move_duration
@@ -181,7 +180,6 @@ class Enemy(Entity):
         else:
 
             self.move_time -= delta_time
-
             if self.move_time <= 0:
                 self.is_waiting = True
                 random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
@@ -196,12 +194,10 @@ class Enemy(Entity):
 
         original_position = self.hitbox_rect.topleft
 
-
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
         if self.collision('horizontal'):
             self.hitbox_rect.x = original_position[0]
             self.direction.x = 0
-
 
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
         if self.collision('vertical'):
