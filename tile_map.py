@@ -1,3 +1,4 @@
+import pygame, random
 from const import *
 from pytmx import load_pygame
 from sprites import Sprite, CollisionSprite
@@ -12,6 +13,60 @@ fire_sword = FireSword()
 earth_sword = EarthSword()
 air_sword = AirSword()
 
+class SlimeSpawner:
+
+    def __init__(self, x, y, all_sprites, collision_sprites, enemy_sprites, player, spawners):
+
+        self.x = x
+        self.y = y
+        self.all_sprites = all_sprites
+        self.collision_sprites = collision_sprites
+        self.enemy_sprites = enemy_sprites
+        self.spawn_interval = ENEMY_SPAWN_INTERVAL
+        self.player = player
+        self.last_spawn_time = pygame.time.get_ticks()
+
+        self.spawners = spawners
+
+        self.max_slimes = ENEMY_SPAWN_MAX
+        self.spawned_slimes = []
+        self.global_cap = ENEMY_SPAWN_GLOBAL_MAX
+
+        self.slime_variants = [Slime, FireSlime, WaterSlime, EarthSlime, AirSlime]
+
+    def spawn(self):
+
+        current_time = pygame.time.get_ticks()
+
+        self.spawned_slimes = [slime for slime in self.spawned_slimes if slime.alive]
+
+        if self.spawned_slimes:
+            return
+
+        total_slimes = len([sprite for sprite in self.enemy_sprites if isinstance(sprite, Slime)])
+        if total_slimes >= self.global_cap:
+            return
+
+        if current_time - self.last_spawn_time >= self.spawn_interval:
+            for _ in range(self.max_slimes):
+                slime_variant = random.choice(self.slime_variants)
+                slime = slime_variant(
+                    (self.x, self.y),
+                    (self.all_sprites, self.enemy_sprites),
+                    self.player,
+                    self.collision_sprites,
+                    self.enemy_sprites
+                )
+                self.spawned_slimes.append(slime)
+
+            self.last_spawn_time = current_time
+
+    def delete_spawner(self):
+        self.spawners.remove(self)
+
+
+
+
 class TileMap:
 
     def __init__(self, display_surface, path, all_sprites, collision_sprites, enemy_sprites, interactables_sprites):
@@ -23,6 +78,7 @@ class TileMap:
         self.collision_sprites = collision_sprites
         self.enemy_sprites = enemy_sprites
         self.interactables_sprites = interactables_sprites
+        self.spawners = []
 
     def load_tilemap(self):
 
@@ -38,8 +94,9 @@ class TileMap:
             if entity.name == 'player':
                 self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites)
 
-            if entity.name == 'enemy_slime':
-                Slime((entity.x, entity.y), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites, self.enemy_sprites)
+            if entity.name == 'slime_spawner':
+                spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
+                self.spawners.append(spawner)
 
             if entity.name == 'chest':
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, basic_sword, self.collision_sprites)

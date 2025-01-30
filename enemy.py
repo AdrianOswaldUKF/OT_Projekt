@@ -239,6 +239,7 @@ class Enemy(Entity):
         self.animate(delta_time)
 
         if self.health <= 0:
+            self.alive = False
             self.kill()
 
         if self.burning:

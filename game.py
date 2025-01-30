@@ -3,7 +3,7 @@ import sys
 from os.path import join
 from const import *
 from groups import AllSprites
-from tile_map import TileMap
+from tile_map import TileMap, SlimeSpawner
 from gui import GUI, InventoryGUI
 
 class Game:
@@ -87,6 +87,10 @@ class Game:
             if self.player.rect.colliderect(enemy.hitbox_rect):
                 enemy.deal_damage(delta_time)
 
+    def update_spawners(self):
+        for spawner in self.tile_map.spawners:
+            spawner.spawn()
+
     def run(self):
         while self.running:
             delta_time = self.clock.tick() / 1000.0
@@ -118,6 +122,8 @@ class Game:
                 if pygame.mouse.get_pressed()[0]:  # Left click
                     mouse_pos = pygame.mouse.get_pos()
                     self.inventory_gui.handle_mouse_input(mouse_pos, self.player, self.player.inventory)
+
+            self.update_spawners()
 
             # Update
             self.display_surface.fill((0, 255, 255))  # Example background color
