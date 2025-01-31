@@ -38,6 +38,7 @@ class Slash(pygame.sprite.Sprite):
             file_path = join('assets', 'sprites', 'weapons', sword_type, f'slash{i + 1}.png')
 
             if file_path:
+
                 self.slash_animation_sprites.append(pygame.image.load(file_path).convert_alpha())
                 self.slash_animation_sprites[i] = pygame.transform.scale(self.slash_animation_sprites[i], self.attack_rect.size)
 
@@ -46,7 +47,9 @@ class Slash(pygame.sprite.Sprite):
         self.frame += SLASH_SPEED * delta_time
 
         if int(self.frame) >= len(self.slash_animation_sprites):
+
             self.kill()
         else:
+
             self.image = self.slash_animation_sprites[int(self.frame)]
             self.image = pygame.transform.scale(self.slash_animation_sprites[int(self.frame)], self.attack_rect.size)

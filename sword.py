@@ -18,8 +18,11 @@ class Sword(Item):
     def attack(self, attack_rect, player, enemies):
 
         if self.equipped:
+
             for enemy in enemies:
+
                 if attack_rect.colliderect(enemy.rect):  # Check if enemy is within range
+
                     self.apply_effect(player, enemy)
 
 
@@ -29,6 +32,7 @@ class Sword(Item):
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
+
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)
 
@@ -48,14 +52,18 @@ class FireSword(Sword):
 
     def apply_effect(self, player, enemy):
 
-        enemy.health -= self.damage
+        bonus_damage = 10 if enemy.element != 'Fire' and enemy.element !='Water' else 0
+        total_damage = self.damage + bonus_damage
+        enemy.health -= total_damage
 
         if enemy.element != 'Fire' and enemy.element !='Water':
+
             enemy.burning = True
 
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
+
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)
 
@@ -68,15 +76,17 @@ class WaterSword(Sword):
 
     def apply_effect(self, player, enemy):
 
-        bonus_damage = 8 if enemy.element == 'Fire' else 0
+        bonus_damage = 10 if enemy.element == 'Fire' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
         if enemy.element == 'Fire':
+
             enemy.burning = True
 
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
+
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)
 
@@ -91,10 +101,14 @@ class EarthSword(Sword):
 
     def apply_effect(self, player, enemy):
 
-        enemy.health -= self.damage
+        bonus_damage = 10 if enemy.element != 'Earth' else 0
+        total_damage = self.damage + bonus_damage
+        enemy.health -= total_damage
+
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
+
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)
 
@@ -107,13 +121,18 @@ class AirSword(Sword):
 
     def apply_effect(self, player, enemy):
 
-        enemy.health -= self.damage
+        bonus_damage = 10 if enemy.element == 'Water' else 0
+        total_damage = self.damage + bonus_damage
+        enemy.health -= total_damage
+
         if random.random() < 0.2:
+
             enemy.stunned = True
             enemy.stun_duration = 2
 
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
+
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)

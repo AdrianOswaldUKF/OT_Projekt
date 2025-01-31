@@ -23,24 +23,31 @@ class AllSprites(pygame.sprite.Group):
 
         # Ground
         for layer in [ground_sprites, enemy_sprites]:
+
             for sprite in sorted(layer, key=lambda sprite: sprite.rect.centery):
+
                 self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)
 
         # Combine Player + Objects and sort
         all_sprites = player_sprite + object_sprites
         if player_sprite:
+
             sorted_sprites = sorted(all_sprites, key=lambda sprite: (sprite.rect.centery, isinstance(sprite, type(player_sprite[0]))))
         else:
+
             sorted_sprites = sorted(all_sprites, key=lambda sprite: sprite.rect.centery)
 
         # Player + Objects
         for sprite in sorted_sprites:
+
             self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)
 
         # Slashes
         for slash in slash_sprites:
+
             self.scene.blit(slash.image, slash.rect.topleft + self.offset)
 
         for sprite in enemy_sprites:
+
             if hasattr(sprite, 'render_health_bar'):
                 sprite.render_health_bar(self.scene, self.offset)

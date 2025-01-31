@@ -82,29 +82,38 @@ class Player(Entity):
     def load_images(self):
 
         for state in self.static_sprites.keys():
+
             file_path = join('assets', 'sprites', 'player', f'player_{state}.png')
             if file_path:
+
                 self.static_sprites[state] = (pygame.image.load(file_path).convert_alpha())
 
         for state in self.animation_sprites.keys():
+
             for i in range(1, 3):
+
                 file_path = join('assets', 'sprites', 'player', f'player_{state}{i}.png')
                 if file_path:
+
                     self.animation_sprites[state].append(pygame.image.load(file_path).convert_alpha())
 
     def animate(self, delta_time):
 
         if self.direction.x != 0:
+
             self.state = 'right' if self.direction.x > 0 else 'left'
 
         if self.direction.y != 0:
+
             self.state = 'down' if self.direction.y > 0 else 'up'
 
         if self.direction:
+
             self.frame += 5 * delta_time
             self.image = self.animation_sprites[self.state][int(self.frame) % len(self.animation_sprites[self.state])]
             self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
         else:
+
             self.image = self.static_sprites[self.state]
             self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
 
@@ -127,20 +136,24 @@ class Player(Entity):
 
             # Attack based on direction
             if self.state == 'up':
+
                 self.attack_rect.center = (self.rect.centerx, self.rect.top - 15)
-                self.attack_rect.height = 50
+                self.attack_rect.height = 60
 
             elif self.state == 'down':
+
                 self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
-                self.attack_rect.height = 50
+                self.attack_rect.height = 60
 
             elif self.state == 'left':
+
                 self.attack_rect.center = (self.rect.left - 20, self.rect.centery)
-                self.attack_rect.width = 50
+                self.attack_rect.width = 60
 
             elif self.state == 'right':
+
                 self.attack_rect.center = (self.rect.right + 25, self.rect.centery)
-                self.attack_rect.width = 50
+                self.attack_rect.width = 60
 
             self.slash = Slash(self.attack_rect, self.attack_rect.center, self.direction, self.equipped.name, self.groups)
             self.is_attacking = False
@@ -153,6 +166,7 @@ class Player(Entity):
 
         # Attack input
         if keys[pygame.K_SPACE] and pygame.time.get_ticks() - self.last_attack_time > self.attack_cooldown * 1000:
+
             self.attack()
             self.last_attack_time = pygame.time.get_ticks()
 
@@ -166,6 +180,7 @@ class Player(Entity):
         for obj in self.interactables_sprites:
 
             if self.is_facing_object(obj):
+
                 obj.interact()
                 return
 
@@ -184,12 +199,16 @@ class Player(Entity):
 
 
         if self.state == 'up' and distance.y > 0 and abs(distance.x) < interaction_distance:
+
             return True
         if self.state == 'down' and distance.y < 0 and abs(distance.x) < interaction_distance:
+
             return True
         if self.state == 'left' and distance.x > 0 and abs(distance.y) < interaction_distance:
+
             return True
         if self.state == 'right' and distance.x < 0 and abs(distance.y) < interaction_distance:
+
             return True
 
 
@@ -198,19 +217,50 @@ class Player(Entity):
     def check_health(self):
 
         if self.health <= 0:
+
             self.alive = False
             self.kill()
+
+    def handle_item_switch(self, inventory_visible):
+
+        if inventory_visible:
+
+            return
+
+        keys = pygame.key.get_pressed()
+        current_time = pygame.time.get_ticks()
+
+        for i in range(1, 6):
+
+            if keys[getattr(pygame, f'K_{i}')]:
+
+                item_index = i - 1
+
+                if 0 <= item_index < len(self.inventory):
+
+                    if current_time - self.last_equip_time >= self.equip_cooldown:
+
+                        selected_item = self.inventory[item_index]
+                        self.equip_item(selected_item)
+                        self.last_equip_time = current_time
+
+                    break
 
     def equip_item(self, item):
 
         current_time = pygame.time.get_ticks()
 
         if current_time - self.last_equip_time > self.equip_cooldown * 1000:
+
             if item.equippable:
+
                 if self.equipped:
+
                     if self.equipped == item:
+
                         self.equipped.unequip(self)
                         self.equipped = None
+
                         return
 
                 item.equip(self)
@@ -224,9 +274,11 @@ class Player(Entity):
         self.inventory_open = not self.inventory_open
 
         if self.inventory_open and self.inventory_ui:
+
             self.inventory_ui.open(self.inventory)
 
         elif self.inventory_ui:
+
             self.inventory_ui.close()
 
     def update(self, delta_time):

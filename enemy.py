@@ -74,6 +74,7 @@ class Enemy(Entity):
         # Status Effects
         self.burning = False
         self.burn_timer = 0
+        self.total_burn_time = 0
         self.stunned = False
         self.stun_duration = 0
 
@@ -93,6 +94,7 @@ class Enemy(Entity):
             file_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name, f'{i}.png')
 
             if file_path:
+
                 self.animation_sprites.append(pygame.image.load(file_path).convert_alpha())
 
     def load_burning_images(self):
@@ -108,6 +110,7 @@ class Enemy(Entity):
                 file_path = os.path.join('assets', 'sprites', 'effects', 'fire', f'{i}.png')
 
                 if file_path:
+
                     self.burning_sprites.append(pygame.image.load(file_path).convert_alpha())
 
     def update_los(self):
@@ -124,15 +127,18 @@ class Enemy(Entity):
     def move(self, delta_time):
 
         if self.knockback:
+
             original_position = self.hitbox_rect.topleft
 
             self.hitbox_rect.x += self.direction.x * self.knockback_speed * delta_time
             if self.collision('horizontal'):
+
                 self.hitbox_rect.x = original_position[0]
                 self.direction.x = 0
 
             self.hitbox_rect.y += self.direction.y * self.knockback_speed * delta_time
             if self.collision('vertical'):
+
                 self.hitbox_rect.y = original_position[1]
                 self.direction.y = 0
 
@@ -141,18 +147,22 @@ class Enemy(Entity):
             self.knockback_duration -= delta_time
 
             if self.knockback_duration <= 0:
+
                 self.knockback = False
 
             return
 
         if self.stunned:
+
             return
 
         self.update_los()
 
         if self.line_of_sight.colliderect(self.player.rect):
+
             self.chasing = True
         else:
+
             self.chasing = False
 
         if self.chasing and self.player.alive:
@@ -162,21 +172,27 @@ class Enemy(Entity):
             direction_vector = player_pos - enemy_pos
 
             if direction_vector.length() != 0:
+
                 self.direction = direction_vector.normalize()
             else:
+
                 self.direction = pygame.Vector2()
 
             for enemy in self.enemy_sprites:
                 if enemy != self:
+
                     distance = pygame.Vector2(self.rect.center) - pygame.Vector2(enemy.rect.center)
                     if distance.length() < ENEMY_DISTANCE_THRESHOLD:
+
                         if distance.length() != 0:
+
                             self.direction += distance.normalize() * 0.5
 
         elif self.is_waiting:
 
             self.wait_time -= delta_time
             if self.wait_time <= 0:
+
                 self.is_waiting = False
                 self.move_time = self.move_duration
 
@@ -184,12 +200,15 @@ class Enemy(Entity):
 
             self.move_time -= delta_time
             if self.move_time <= 0:
+
                 self.is_waiting = True
                 random_direction = pygame.Vector2(randint(-1, 1), randint(-1, 1))
 
                 if random_direction.length() != 0:
+
                     self.direction = random_direction.normalize()
                 else:
+
                     self.direction = pygame.Vector2()
 
                 self.wait_time = self.wait_duration
@@ -199,11 +218,13 @@ class Enemy(Entity):
 
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
         if self.collision('horizontal'):
+
             self.hitbox_rect.x = original_position[0]
             self.direction.x = 0
 
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
         if self.collision('vertical'):
+
             self.hitbox_rect.y = original_position[1]
             self.direction.y = 0
 
@@ -213,6 +234,7 @@ class Enemy(Entity):
 
 
         if self.stunned:
+
             self.burn_animation(delta_time)
             return
 
@@ -225,6 +247,7 @@ class Enemy(Entity):
     def burn_animation(self, delta_time):
 
         if self.burning and self.burning_sprites:
+
             self.burn_frame += delta_time * 10
             burn_image = self.burning_sprites[int(self.burn_frame) % len(self.burning_sprites)]
 
@@ -232,13 +255,13 @@ class Enemy(Entity):
 
             self.image.blit(burn_image, (0, 0))
 
-
     def update(self, delta_time):
 
         self.move(delta_time)
         self.animate(delta_time)
 
         if self.health <= 0:
+
             self.alive = False
             self.kill()
 
@@ -247,11 +270,25 @@ class Enemy(Entity):
             self.burn_timer += delta_time
 
             if self.burn_timer >= 1:
+
                 self.health -= 5
                 self.burn_timer = 0
 
+            self.total_burn_time += delta_time
+
+            if self.total_burn_time >= BURN_TIME:
+
+                self.burning = False
+                self.burn_frame = 0
+                self.total_burn_time = 0
+
+        else:
+            self.total_burn_time = 0
+
         if self.stunned:
+
             self.stun_duration -= delta_time
+
             if self.stun_duration <= 0:
                 self.stunned = False
 
@@ -259,10 +296,12 @@ class Enemy(Entity):
     def deal_damage(self, delta_time):
 
         if not self.player.alive:
+
             return
 
         self.last_damage += delta_time
         if not self.last_damage >= self.damage_cooldown:
+
             return
 
         self.player.health -= self.damage
@@ -302,8 +341,10 @@ class Slime(Enemy):
 
         # Stats
         if scale_factor < 1:
+
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
+
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(SLIME_HEALTH * scale_factor)
@@ -329,8 +370,10 @@ class WaterSlime(Enemy):
 
         # Stats
         if scale_factor < 1:
+
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
+
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(WATER_SLIME_HEALTH * scale_factor)
@@ -357,8 +400,10 @@ class FireSlime(Enemy):
 
         # Stats
         if scale_factor < 1:
+
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
+
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(FIRE_SLIME_HEALTH * scale_factor)
@@ -388,6 +433,7 @@ class FireSlime(Enemy):
                 file_path = os.path.join('assets', 'sprites', 'effects', 'water_splash', f'{i}.png')
 
                 if file_path:
+
                     self.burning_sprites.append(pygame.image.load(file_path).convert_alpha())
 
 class EarthSlime(Enemy):
@@ -407,8 +453,10 @@ class EarthSlime(Enemy):
 
         # Stats
         if scale_factor < 1:
+
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
+
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(EARTH_SLIME_HEALTH * scale_factor)
@@ -435,8 +483,10 @@ class AirSlime(Enemy):
 
         # Stats
         if scale_factor < 1:
+
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
+
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(AIR_SLIME_HEALTH * scale_factor)

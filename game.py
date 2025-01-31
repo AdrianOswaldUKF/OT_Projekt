@@ -61,10 +61,12 @@ class Game:
     def toggle_fullscreen(self):
 
         if self.fullscreen:
+
             self.display_surface = pygame.display.set_mode((WINDOW_W, WINDOW_H)) # const.py
             self.fullscreen = False
 
         else:
+
             self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             self.fullscreen = True
 
@@ -75,6 +77,7 @@ class Game:
 
         # Update FPS every second (1000 ms)
         if current_time - self.last_fps_update_time >= self.fps_update_interval:
+
             self.current_fps = round(self.frame_count / (self.fps_update_interval / 1000))  # Calculate FPS
             self.last_fps_update_time = current_time
             self.frame_count = 0  # Reset frame count for the next second
@@ -82,49 +85,67 @@ class Game:
     def check_collisions(self, delta_time):
 
         if not self.player.alive:
+
             return
 
         for enemy in self.enemy_sprites:
-            if self.player.rect.colliderect(enemy.hitbox_rect):
+
+            if self.player.hitbox_rect.colliderect(enemy.hitbox_rect):
+
                 enemy.deal_damage(delta_time)
 
     def update_spawners(self):
+
         for spawner in self.tile_map.spawners:
-            spawner.spawn()
+
+            spawner.update()
 
     def run(self):
         while self.running:
+
             delta_time = self.clock.tick() / 1000.0
 
             # Event loop
             for event in pygame.event.get():
+
                 # Quit event
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+
                     self.running = False
 
                 # Toggle fullscreen
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+
                     self.toggle_fullscreen()
 
                 # Interact
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+
                     self.player.interact()
 
                 # Toggle inventory
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+
                     self.inventory_gui.toggle_inventory()
 
                 # Handle item pickup messages
                 if event.type == ITEM_PICKUP_EVENT:
+
                     self.gui.show_pickup_message(event.message)
 
-            # In your main game loop
+            if not self.inventory_gui.inventory_visible:
+
+                # Allow item switching if inventory is not visible
+                self.player.handle_item_switch(self.inventory_gui.inventory_visible)
+
             if self.inventory_gui.inventory_visible:
+
                 # Handle keyboard input for equipping items
                 self.inventory_gui.handle_input(self.player)
 
                 # Handle mouse input for switching items
                 if pygame.mouse.get_pressed()[0]:  # Left click
+
                     mouse_pos = pygame.mouse.get_pos()
                     self.inventory_gui.handle_mouse_input(mouse_pos, self.player, self.player.inventory)
 
@@ -144,6 +165,7 @@ class Game:
             self.gui.draw_health_text(self.player.health)
             self.gui.draw_fps(self.current_fps)
             self.gui.draw_pickup_message()
+            self.gui.draw_equipped_sword()
 
             # Draw Inventory if visible
             self.inventory_gui.draw_inventory(self.player.inventory)
