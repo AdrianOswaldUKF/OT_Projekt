@@ -16,7 +16,7 @@ class Game:
         # Game window
         self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.fullscreen = True
-        pygame.display.set_caption('Hra')
+        pygame.display.set_caption('Slimes Invade')
 
         # Sprite Groups
         self.all_sprites = AllSprites()
@@ -58,9 +58,8 @@ class Game:
         # Inventory GUI
         self.inventory_gui = InventoryGUI(self.display_surface, self.player)
 
-        # Font for "You are dead" message
         self.font = pygame.font.Font(None, 100)
-        self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100, pygame.display.Info().current_h // 2 + 50, 200, 50)  # Restart button position
+        self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100, pygame.display.Info().current_h // 2 + 50, 200, 50)
 
 
     def toggle_fullscreen(self):
@@ -74,6 +73,9 @@ class Game:
 
             self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             self.fullscreen = True
+
+        self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100,
+                                          pygame.display.Info().current_h // 2 + 50, 200, 50)
 
     def update_fps(self):
 
@@ -106,24 +108,34 @@ class Game:
 
     def draw_game_over_screen(self):
 
-        # Draw the "You are dead" text
-        game_over_text = self.font.render("You are dead", True, (139, 0, 0))  # Dark red
-        self.display_surface.blit(game_over_text, (pygame.display.Info().current_w // 2 - game_over_text.get_width() // 2, pygame.display.Info().current_h // 2 - 100))
+        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
-        # Draw the Restart button
-        pygame.draw.rect(self.display_surface, (0, 255, 0), self.restart_button)  # Green button
-        restart_text = self.font.render("Restart", True, (255, 255, 255))  # White text
+        dark_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        dark_surface.fill((30, 30, 30, 150))
+
+        self.display_surface.blit(dark_surface, (0, 0))
+
+        game_over_text = self.font.render("You are dead", True, (255, 0, 0))
+        self.display_surface.blit(game_over_text, (screen_width // 2 - game_over_text.get_width() // 2, screen_height // 2 - 100))
+
+        restart_text = self.font.render("Restart", True, (255, 255, 255))
+
+        restart_button_width = restart_text.get_width() + 20
+        restart_button_height = restart_text.get_height() + 10
+        self.restart_button = pygame.Rect(screen_width // 2 - restart_button_width // 2, screen_height // 2 + 50, restart_button_width, restart_button_height)
+
+        pygame.draw.rect(self.display_surface, (100, 100, 100), self.restart_button, border_radius=10)
+        pygame.draw.rect(self.display_surface, (0, 0, 0, 0), self.restart_button, width=2)
         self.display_surface.blit(restart_text, (self.restart_button.centerx - restart_text.get_width() // 2,
-                                                 self.restart_button.centery - restart_text.get_height() // 2))
+                                                      self.restart_button.centery - restart_text.get_height() // 2))
 
     def handle_restart(self):
 
-        # Check if restart button is clicked
         mouse_pos = pygame.mouse.get_pos()
 
         if self.restart_button.collidepoint(mouse_pos):
 
-            if pygame.mouse.get_pressed()[0]:  # Left click
+            if pygame.mouse.get_pressed()[0]:
 
                 self.reset_game()
 
@@ -147,6 +159,7 @@ class Game:
         self.gui = GUI(self.display_surface, self.player)
 
     def run(self):
+
         while self.running:
 
             delta_time = self.clock.tick() / 1000.0
