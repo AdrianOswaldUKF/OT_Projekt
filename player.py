@@ -135,11 +135,11 @@ class Player(Entity):
                 self.attack_rect.height = 50
 
             elif self.state == 'left':
-                self.attack_rect.center = (self.rect.left - 15, self.rect.centery)
+                self.attack_rect.center = (self.rect.left - 20, self.rect.centery)
                 self.attack_rect.width = 50
 
             elif self.state == 'right':
-                self.attack_rect.center = (self.rect.right + 20, self.rect.centery)
+                self.attack_rect.center = (self.rect.right + 25, self.rect.centery)
                 self.attack_rect.width = 50
 
             self.slash = Slash(self.attack_rect, self.attack_rect.center, self.direction, self.equipped.name, self.groups)

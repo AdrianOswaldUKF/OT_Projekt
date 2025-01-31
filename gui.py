@@ -14,6 +14,10 @@ class GUI:
         self.font = pygame.font.Font(None, 36)
         self.player = player
 
+        self.pickup_message = ""
+        self.pickup_timer = 0
+        self.pickup_duration = 2000  # Show message for 2 seconds
+
     def draw_health_bar(self, current_health, max_health):
 
         # Dimensions
@@ -42,6 +46,22 @@ class GUI:
         fps_text = f'FPS: {current_fps}'
         fps_surface = self.font.render(fps_text, True, (255, 255, 255))
         self.display_surface.blit(fps_surface, (self.display_w - 150, 10))
+
+    def show_pickup_message(self, message):
+
+        self.pickup_message = message
+        self.pickup_timer = pygame.time.get_ticks()
+
+    def draw_pickup_message(self):
+
+        if self.pickup_message:
+            elapsed_time = pygame.time.get_ticks() - self.pickup_timer
+
+            if elapsed_time < self.pickup_duration:
+                text_surface = self.font.render(self.pickup_message, True, (255, 255, 0))
+                self.display_surface.blit(text_surface, (self.display_surface.get_width() // 2 - 150, 100))
+            else:
+                self.pickup_message = ""
 
 
 class InventoryGUI(GUI):

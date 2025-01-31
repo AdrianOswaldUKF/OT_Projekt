@@ -83,6 +83,7 @@ class TileMap:
     def load_tilemap(self):
 
         for x, y, image in self.tile_map.get_layer_by_name('terrain').tiles():
+
             if image:
                 Sprite((x * TILE_SIZE, y * TILE_SIZE), self.all_sprites, image) # const.py
 
@@ -91,13 +92,13 @@ class TileMap:
                 #CollisionSprite((gameObject.x, gameObject.y), (self.all_sprites, self.collision_sprites), gameObject.image)
 
         for entity in self.tile_map.get_layer_by_name('entities'):
+
             if entity.name == 'player':
                 self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites)
 
             if entity.name == 'slime_spawner':
-                #spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
-                #self.spawners.append(spawner)
-                FireSlime((entity.x, entity.y),(self.all_sprites, self.enemy_sprites),self.player,self.collision_sprites,self.enemy_sprites)
+                spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
+                self.spawners.append(spawner)
 
             if entity.name == 'chest':
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, basic_sword, self.collision_sprites)
@@ -116,5 +117,6 @@ class TileMap:
 
 
         for x, y, image in self.tile_map.get_layer_by_name('map_border').tiles():
+
             if image:
                 CollisionSprite((x * TILE_SIZE, y * TILE_SIZE), (self.all_sprites, self.collision_sprites), image)

@@ -3,6 +3,7 @@ import sys
 from os.path import join
 from const import *
 from groups import AllSprites
+from object import ITEM_PICKUP_EVENT
 from tile_map import TileMap, SlimeSpawner
 from gui import GUI, InventoryGUI
 
@@ -113,6 +114,10 @@ class Game:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
                     self.inventory_gui.toggle_inventory()
 
+                # Handle item pickup messages
+                if event.type == ITEM_PICKUP_EVENT:
+                    self.gui.show_pickup_message(event.message)
+
             # In your main game loop
             if self.inventory_gui.inventory_visible:
                 # Handle keyboard input for equipping items
@@ -138,6 +143,7 @@ class Game:
             self.gui.draw_health_bar(self.player.health, 100)
             self.gui.draw_health_text(self.player.health)
             self.gui.draw_fps(self.current_fps)
+            self.gui.draw_pickup_message()
 
             # Draw Inventory if visible
             self.inventory_gui.draw_inventory(self.player.inventory)

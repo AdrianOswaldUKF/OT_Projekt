@@ -80,6 +80,7 @@ class Enemy(Entity):
         # Knockback
         self.knockback = False
         self.knockback_duration = 0
+        self.knockback_speed = 0
 
     def load_images(self):
 
@@ -113,25 +114,24 @@ class Enemy(Entity):
 
         self.line_of_sight.center = self.rect.center
 
-    def apply_knockback(self, knockback_direction):
-        knockback_speed = KNOCKBACK_SPEED
+    def apply_knockback(self, knockback_direction, knockback_speed, knockback_duration):
+
         self.knockback = True
-
-
-        self.direction = knockback_direction * knockback_speed
-        self.knockback_duration = KNOCKBACK_DURATION
+        self.direction = knockback_direction
+        self.knockback_speed = knockback_speed
+        self.knockback_duration = knockback_duration
 
     def move(self, delta_time):
 
         if self.knockback:
             original_position = self.hitbox_rect.topleft
 
-            self.hitbox_rect.x += self.direction.x * delta_time
+            self.hitbox_rect.x += self.direction.x * self.knockback_speed * delta_time
             if self.collision('horizontal'):
                 self.hitbox_rect.x = original_position[0]
                 self.direction.x = 0
 
-            self.hitbox_rect.y += self.direction.y * delta_time
+            self.hitbox_rect.y += self.direction.y * self.knockback_speed * delta_time
             if self.collision('vertical'):
                 self.hitbox_rect.y = original_position[1]
                 self.direction.y = 0
@@ -250,6 +250,11 @@ class Enemy(Entity):
                 self.health -= 5
                 self.burn_timer = 0
 
+        if self.stunned:
+            self.stun_duration -= delta_time
+            if self.stun_duration <= 0:
+                self.stunned = False
+
 
     def deal_damage(self, delta_time):
 
@@ -263,14 +268,9 @@ class Enemy(Entity):
         self.player.health -= self.damage
         self.last_damage = 0
 
-        if self.stunned:
-            self.stun_duration -= delta_time
-            if self.stun_duration <= 0:
-                self.stunned = False
-
     def render_health_bar(self, screen, offset):
 
-        max_bar_width = SLIME_SIZE[0] * 0.02
+        max_bar_width = SLIME_SIZE[0]
         bar_height = 5
 
         health_percentage = self.health / self.max_health
@@ -307,6 +307,7 @@ class Slime(Enemy):
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(SLIME_HEALTH * scale_factor)
+        self.max_health = self.health
         self.damage = int(SLIME_DAMAGE * scale_factor)
 
         # Animation
@@ -333,6 +334,7 @@ class WaterSlime(Enemy):
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(WATER_SLIME_HEALTH * scale_factor)
+        self.max_health = self.health
         self.damage = int(WATER_SLIME_DAMAGE * scale_factor)
         self.element = 'Water'
 
@@ -360,6 +362,7 @@ class FireSlime(Enemy):
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(FIRE_SLIME_HEALTH * scale_factor)
+        self.max_health = self.health
         self.damage = int(FIRE_SLIME_DAMAGE * scale_factor)
         self.element = 'Fire'
 
@@ -409,6 +412,7 @@ class EarthSlime(Enemy):
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(EARTH_SLIME_HEALTH * scale_factor)
+        self.max_health = self.health
         self.damage = int(EARTH_SLIME_DAMAGE * scale_factor)
         self.element = 'Earth'
 
@@ -436,6 +440,7 @@ class AirSlime(Enemy):
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(AIR_SLIME_HEALTH * scale_factor)
+        self.max_health = self.health
         self.damage = int(AIR_SLIME_DAMAGE * scale_factor)
         self.element = 'Air'
 
