@@ -52,6 +52,10 @@ class FireSword(Sword):
 
     def apply_effect(self, player, enemy):
 
+        if enemy.element == 'Fire':
+
+            return
+
         bonus_damage = 10 if enemy.element != 'Fire' and enemy.element !='Water' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
@@ -75,6 +79,10 @@ class WaterSword(Sword):
         super().__init__('Water Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'water', 'sword.png')), damage=12, element='Water')
 
     def apply_effect(self, player, enemy):
+
+        if enemy.element == 'Water':
+
+            return
 
         bonus_damage = 10 if enemy.element == 'Fire' else 0
         total_damage = self.damage + bonus_damage
@@ -101,6 +109,10 @@ class EarthSword(Sword):
 
     def apply_effect(self, player, enemy):
 
+        if enemy.element == 'Earth':
+
+            return
+
         bonus_damage = 10 if enemy.element != 'Earth' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
@@ -120,6 +132,10 @@ class AirSword(Sword):
         super().__init__('Air Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'air', 'sword.png')), damage=14, element='Air')
 
     def apply_effect(self, player, enemy):
+
+        if enemy.element == 'Air':
+
+            return
 
         bonus_damage = 10 if enemy.element == 'Water' else 0
         total_damage = self.damage + bonus_damage

@@ -138,22 +138,22 @@ class Player(Entity):
             if self.state == 'up':
 
                 self.attack_rect.center = (self.rect.centerx, self.rect.top - 15)
-                self.attack_rect.height = 60
+                self.attack_rect.height = 50
 
             elif self.state == 'down':
 
                 self.attack_rect.center = (self.rect.centerx, self.rect.bottom + 15)
-                self.attack_rect.height = 60
+                self.attack_rect.height = 50
 
             elif self.state == 'left':
 
                 self.attack_rect.center = (self.rect.left - 20, self.rect.centery)
-                self.attack_rect.width = 60
+                self.attack_rect.width = 50
 
             elif self.state == 'right':
 
                 self.attack_rect.center = (self.rect.right + 25, self.rect.centery)
-                self.attack_rect.width = 60
+                self.attack_rect.width = 50
 
             self.slash = Slash(self.attack_rect, self.attack_rect.center, self.direction, self.equipped.name, self.groups)
             self.is_attacking = False
@@ -195,6 +195,7 @@ class Player(Entity):
 
 
         if distance.length() > interaction_distance:
+
             return False
 
 
