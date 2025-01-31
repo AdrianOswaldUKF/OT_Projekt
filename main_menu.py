@@ -6,7 +6,7 @@ from game import Game
 
 class MainMenu:
 
-    def __init__(self, display_surface):
+    def __init__(self):
 
         # Game window
         self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -17,26 +17,24 @@ class MainMenu:
         self.font = pygame.font.Font(None, 100)
         self.button_font = pygame.font.Font(None, 50)
 
-        # Button setup
+        # Button
         self.start_button = pygame.Rect(pygame.display.Info().current_w // 2 - 150,
                                         pygame.display.Info().current_h // 2 + 50, 300, 50)
-        self.running = True
 
         # Button colors
         self.button_color = (0, 200, 0)
         self.button_hover_color = (0, 255, 0)
 
+        self.running = True
+
     def draw_main_menu(self):
 
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
-        # Gradient background
         self.draw_gradient_background(screen_width, screen_height)
 
-        # Title text with a shadow effect
         self.draw_title(screen_width, screen_height)
 
-        # Draw the Start button with hover effect
         self.draw_start_button()
 
     def draw_gradient_background(self, width, height):
@@ -51,13 +49,11 @@ class MainMenu:
         title_text = self.font.render("Slimes Invade", True, (255, 255, 255))
         shadow_text = self.font.render("Slimes Invade", True, (50, 50, 50))
 
-        # Shadow slightly offset
         self.display_surface.blit(shadow_text, (width // 2 - shadow_text.get_width() // 2 + 5, height // 2 - 150 + 5))
         self.display_surface.blit(title_text, (width // 2 - title_text.get_width() // 2, height // 2 - 150))
 
     def draw_start_button(self):
 
-        # Hover effect
         mouse_pos = pygame.mouse.get_pos()
 
         if self.start_button.collidepoint(mouse_pos):
@@ -102,9 +98,9 @@ class MainMenu:
 
         while self.running:
 
-            self.display_surface.fill((0, 0, 0))  # Clear the screen
+            self.display_surface.fill((0, 0, 0))
 
-            self.draw_main_menu()  # Draw the menu
+            self.draw_main_menu()
 
             # Event loop
             for event in pygame.event.get():
