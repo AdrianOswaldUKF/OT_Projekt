@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
-    menu = MainMenu(display_surface)
+    menu = MainMenu()
     game = menu.run()
 
     game.run()
