@@ -75,7 +75,7 @@ class FireSword(Sword):
         self.damage_sound.play()
         enemy.health -= total_damage
 
-        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        damage_sprite = DamageNumber(total_damage, enemy.rect.center)
         enemy.all_sprites.add(damage_sprite)
 
         if enemy.element != 'Fire' and enemy.element !='Water':
@@ -108,7 +108,7 @@ class WaterSword(Sword):
         self.damage_sound.play()
         enemy.health -= total_damage
 
-        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        damage_sprite = DamageNumber(total_damage, enemy.rect.center)
         enemy.all_sprites.add(damage_sprite)
 
         if enemy.element == 'Fire':
@@ -143,7 +143,7 @@ class EarthSword(Sword):
         self.damage_sound.play()
         enemy.health -= total_damage
 
-        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        damage_sprite = DamageNumber(total_damage, enemy.rect.center)
         enemy.all_sprites.add(damage_sprite)
 
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
@@ -172,7 +172,7 @@ class AirSword(Sword):
         self.damage_sound.play()
         enemy.health -= total_damage
 
-        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        damage_sprite = DamageNumber(total_damage, enemy.rect.center)
         enemy.all_sprites.add(damage_sprite)
 
         if random.random() < 0.2:

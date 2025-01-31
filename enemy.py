@@ -342,13 +342,11 @@ class Enemy(Entity):
 
 class Slime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites, scale_factor=None):
 
         super().__init__('slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
-
-        scale_factor = uniform(0.5, 1.8)
-
+        scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
@@ -357,10 +355,8 @@ class Slime(Enemy):
 
         # Stats
         if scale_factor < 1:
-
             self.speed = SLIME_SPEED * (1 / scale_factor)
         else:
-
             self.speed = SLIME_SPEED / scale_factor
 
         self.health = int(SLIME_HEALTH * scale_factor)
@@ -371,13 +367,14 @@ class Slime(Enemy):
         self.animation_speed = SLIME_ANIMATION_SPEED
 
 
+
 class WaterSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites, scale_factor=None):
 
         super().__init__('water_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
-        scale_factor = uniform(0.8, 1.5)
+        scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
@@ -402,11 +399,11 @@ class WaterSlime(Enemy):
 
 class FireSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites, scale_factor=None):
 
         super().__init__('fire_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
-        scale_factor = uniform(0.8, 1.5)
+        scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
 
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
@@ -454,12 +451,12 @@ class FireSlime(Enemy):
 
 class EarthSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites, scale_factor=None):
 
         super().__init__('earth_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
 
-        scale_factor = uniform(0.8, 1.5)
+        scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
 
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
@@ -485,11 +482,11 @@ class EarthSlime(Enemy):
 
 class AirSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites, scale_factor=None):
 
         super().__init__('air_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
-        scale_factor = uniform(0.8, 1.5)
+        scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
 
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))

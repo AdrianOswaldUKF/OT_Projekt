@@ -16,7 +16,7 @@ air_sword = AirSword()
 
 class SlimeSpawner:
 
-    def __init__(self, x, y, all_sprites, collision_sprites, enemy_sprites, player, spawners, zone):
+    def __init__(self, x, y, all_sprites, collision_sprites, enemy_sprites, player, spawners, zone, allowed_variants=None, min_scale=0.5, max_scale=1.5):
 
         self.x = x
         self.y = y
@@ -30,7 +30,12 @@ class SlimeSpawner:
         self.max_slimes = SPAWNER_MAX_ENEMIES
         self.global_cap = SPAWNER_GLOBAL_MAX
 
-        self.slime_variants = [Slime, FireSlime, WaterSlime, EarthSlime, AirSlime]
+        # Allowed slime types (default: all variants)
+        self.all_variants = [Slime, FireSlime, WaterSlime, EarthSlime, AirSlime]
+        self.slime_variants = allowed_variants if allowed_variants else self.all_variants
+
+        self.min_scale = min_scale
+        self.max_scale = max_scale
 
         self.max_waves = SPAWNER_MAX_WAVES
         self.wave_count = 0
@@ -47,6 +52,7 @@ class SlimeSpawner:
         if self.wave_count >= self.max_waves:
 
             self.delete_spawner()
+
             return
 
         self.wave_active = True
@@ -62,14 +68,18 @@ class SlimeSpawner:
         if self.wave_active and self.slime_spawn_count < self.max_slimes and current_time >= self.next_spawn_time:
 
             slime_variant = random.choice(self.slime_variants)
+            scale_factor = random.uniform(self.min_scale, self.max_scale)
+
             slime = slime_variant(
                 (self.x, self.y),
                 (self.all_sprites, self.enemy_sprites),
                 self.player,
                 self.collision_sprites,
                 self.enemy_sprites,
-                self.all_sprites
+                self.all_sprites,
+                scale_factor  # Pass scale factor to slime
             )
+
             self.spawned_slimes.append(slime)
             self.slime_spawn_count += 1
             self.next_spawn_time = current_time + self.spawn_interval
@@ -91,8 +101,10 @@ class SlimeSpawner:
     def delete_spawner(self):
 
         self.spawners.remove(self)
+
         for sprite in self.zone:
             sprite.kill()
+
 
 
 

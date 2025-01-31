@@ -89,9 +89,6 @@ class Player(Entity):
         self.equip_sound = pygame.mixer.Sound(join('assets', 'sounds', 'player', 'equip', '0.wav'))
         self.unequip_sound = pygame.mixer.Sound(join('assets', 'sounds', 'player', 'unequip', '0.wav'))
 
-        self.step_sound = pygame.mixer.Sound(join('assets', 'sounds', 'player', 'step', '0.wav'))
-        self.step_sound.set_volume(0.1)
-
 
     def load_images(self):
 
@@ -246,7 +243,7 @@ class Player(Entity):
 
         self.health = min(self.health + amount, 100)
 
-        damage_sprite = DamageNumber(amount, self.rect.center, color=(0, 255, 0))
+        damage_sprite = DamageNumber(amount, self.rect.center, color=(1, 50, 32))
         self.all_sprites.add(damage_sprite)
 
     def handle_item_switch(self):

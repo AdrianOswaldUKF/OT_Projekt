@@ -62,7 +62,7 @@ class GUI:
 
             if elapsed_time < self.pickup_duration:
 
-                text_surface = self.font.render(self.pickup_message, True, (255, 255, 0))
+                text_surface = self.font.render(self.pickup_message, True, (255, 0, 0))
                 text_rect = text_surface.get_rect(center=(pygame.display.Info().current_w // 2, pygame.display.Info().current_h // 2 - 100))
                 self.display_surface.blit(text_surface, text_rect)
             else:
