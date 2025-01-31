@@ -8,12 +8,18 @@ from item import Item
 
 class Sword(Item):
     def __init__(self, name, image, damage, element, attack_range=50, equippable=True):
+
+        pygame.mixer.init()
         super().__init__(name, image, equippable)
+
         self.damage = damage
         self.attack_range = attack_range
         self.element = element
         self.knockback_speed = DEFAULT_KNOCKBACK_SPEED
         self.knockback_duration = DEFAULT_KNOCKBACK_DURATION
+
+        self.damage_sound = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'enemy' , 'hit','0.wav'))
+        self.damage_sound.set_volume(0.5)
 
 
     def attack(self, attack_rect, player, enemies):
@@ -28,6 +34,8 @@ class Sword(Item):
 
 
     def apply_effect(self, player, enemy):
+
+        self.damage_sound.play()
 
         enemy.health -= self.damage
 
@@ -46,7 +54,7 @@ class BasicSword(Sword):
 
     def __init__(self):
 
-            super().__init__('Basic Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'basic', 'sword.png')), damage=8, element='None')
+            super().__init__('Basic Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'basic', 'sword.png')), damage=10, element='None')
 
 # Fire Sword (Burns Non-Fire Slimes)
 class FireSword(Sword):
@@ -63,6 +71,8 @@ class FireSword(Sword):
 
         bonus_damage = 10 if enemy.element != 'Fire' and enemy.element !='Water' else 0
         total_damage = self.damage + bonus_damage
+
+        self.damage_sound.play()
         enemy.health -= total_damage
 
         damage_sprite = DamageNumber(self.damage, enemy.rect.center)
@@ -94,6 +104,8 @@ class WaterSword(Sword):
 
         bonus_damage = 10 if enemy.element == 'Fire' else 0
         total_damage = self.damage + bonus_damage
+
+        self.damage_sound.play()
         enemy.health -= total_damage
 
         damage_sprite = DamageNumber(self.damage, enemy.rect.center)
@@ -127,6 +139,8 @@ class EarthSword(Sword):
 
         bonus_damage = 10 if enemy.element != 'Earth' else 0
         total_damage = self.damage + bonus_damage
+
+        self.damage_sound.play()
         enemy.health -= total_damage
 
         damage_sprite = DamageNumber(self.damage, enemy.rect.center)
@@ -154,6 +168,8 @@ class AirSword(Sword):
 
         bonus_damage = 10 if enemy.element == 'Water' else 0
         total_damage = self.damage + bonus_damage
+
+        self.damage_sound.play()
         enemy.health -= total_damage
 
         damage_sprite = DamageNumber(self.damage, enemy.rect.center)

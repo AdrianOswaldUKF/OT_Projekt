@@ -170,6 +170,7 @@ class Player(Entity):
             self.equipped.attack(self.attack_rect, self, self.enemy_sprites)
 
             sound_to_play = self.attack_sounds[self.attack_count % len(self.attack_sounds)]
+            sound_to_play.set_volume(0.5)
             sound_to_play.play()
 
             self.attack_count += 1

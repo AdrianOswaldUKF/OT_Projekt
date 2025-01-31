@@ -86,6 +86,9 @@ class Enemy(Entity):
         self.knockback_duration = 0
         self.knockback_speed = 0
 
+        self.hurt_sound = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'enemy', 'hit', '0.wav'))
+        self.hurt_sound.set_volume(0.5)
+
     def load_images(self):
 
         folder_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name)
@@ -283,6 +286,7 @@ class Enemy(Entity):
 
             if self.burn_timer >= 1:
 
+                self.hurt_sound.play()
                 self.health -= 5
                 self.burn_timer = 0
 
