@@ -21,6 +21,7 @@ class AllSprites(pygame.sprite.Group):
         object_sprites = [sprite for sprite in self if hasattr(sprite, 'object')]
         item_sprites = [sprite for sprite in self if hasattr(sprite, 'isHealingPotion')]
         slash_sprites = [sprite for sprite in self if hasattr(sprite, 'isSlash')]
+        damage_number_sprites = [sprite for sprite in self if hasattr(sprite, 'isDamageNumber')]
 
         # Ground
         for layer in [ground_sprites, enemy_sprites]:
@@ -57,3 +58,6 @@ class AllSprites(pygame.sprite.Group):
 
             if hasattr(sprite, 'render_health_bar'):
                 sprite.render_health_bar(self.scene, self.offset)
+
+        for sprite in sorted(damage_number_sprites, key=lambda s: s.rect.centery):
+            self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)

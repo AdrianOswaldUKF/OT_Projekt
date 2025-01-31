@@ -3,6 +3,7 @@ import random
 import os
 
 from const import *
+from damage_number import DamageNumber
 from item import Item
 
 class Sword(Item):
@@ -27,7 +28,11 @@ class Sword(Item):
 
 
     def apply_effect(self, player, enemy):
+
         enemy.health -= self.damage
+
+        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        enemy.all_sprites.add(damage_sprite)
 
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
@@ -41,7 +46,7 @@ class BasicSword(Sword):
 
     def __init__(self):
 
-        super().__init__('Basic Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'basic', 'sword.png')), damage=10, element='None')
+            super().__init__('Basic Sword', pygame.image.load(os.path.join('assets', 'sprites', 'weapons', 'basic', 'sword.png')), damage=8, element='None')
 
 # Fire Sword (Burns Non-Fire Slimes)
 class FireSword(Sword):
@@ -59,6 +64,9 @@ class FireSword(Sword):
         bonus_damage = 10 if enemy.element != 'Fire' and enemy.element !='Water' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
+
+        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        enemy.all_sprites.add(damage_sprite)
 
         if enemy.element != 'Fire' and enemy.element !='Water':
 
@@ -87,6 +95,10 @@ class WaterSword(Sword):
         bonus_damage = 10 if enemy.element == 'Fire' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
+
+        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        enemy.all_sprites.add(damage_sprite)
+
         if enemy.element == 'Fire':
 
             enemy.burning = True
@@ -117,6 +129,9 @@ class EarthSword(Sword):
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
 
+        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        enemy.all_sprites.add(damage_sprite)
+
         knockback_force = pygame.Vector2(enemy.rect.center) - pygame.Vector2(player.rect.center)
 
         if knockback_force.length() != 0:
@@ -140,6 +155,9 @@ class AirSword(Sword):
         bonus_damage = 10 if enemy.element == 'Water' else 0
         total_damage = self.damage + bonus_damage
         enemy.health -= total_damage
+
+        damage_sprite = DamageNumber(self.damage, enemy.rect.center)
+        enemy.all_sprites.add(damage_sprite)
 
         if random.random() < 0.2:
 

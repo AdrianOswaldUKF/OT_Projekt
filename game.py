@@ -96,7 +96,7 @@ class Game:
 
         for enemy in self.enemy_sprites:
 
-            if self.player.hitbox_rect.colliderect(enemy.hitbox_rect):
+            if self.player.rect.colliderect(enemy.hitbox_rect):
 
                 enemy.deal_damage(delta_time)
 

@@ -16,7 +16,7 @@ air_sword = AirSword()
 
 class SlimeSpawner:
 
-    def __init__(self, x, y, all_sprites, collision_sprites, enemy_sprites, player, spawners):
+    def __init__(self, x, y, all_sprites, collision_sprites, enemy_sprites, player, spawners, zone):
 
         self.x = x
         self.y = y
@@ -40,6 +40,7 @@ class SlimeSpawner:
         self.next_spawn_time = 0
 
         self.wave_active = False
+        self.zone = zone
 
     def spawn_wave(self):
 
@@ -90,6 +91,8 @@ class SlimeSpawner:
     def delete_spawner(self):
 
         self.spawners.remove(self)
+        for sprite in self.zone:
+            sprite.kill()
 
 
 
@@ -105,6 +108,7 @@ class TileMap:
         self.enemy_sprites = enemy_sprites
         self.interactables_sprites = interactables_sprites
         self.spawners = []
+        self.zone1_sprites = pygame.sprite.Group()
 
     def load_tilemap(self):
 
@@ -127,7 +131,7 @@ class TileMap:
 
             if entity.name == 'slime_spawner':
 
-                spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners)
+                spawner = SlimeSpawner(entity.x, entity.y, self.all_sprites, self.collision_sprites, self.enemy_sprites, self.player, self.spawners, self.zone1_sprites)
                 self.spawners.append(spawner)
 
             if entity.name == 'chest':
@@ -150,6 +154,9 @@ class TileMap:
 
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, earth_sword, self.collision_sprites)
 
+        for entity in self.tile_map.get_layer_by_name('zone1'):
+            sprite = CollisionSprite((entity.x, entity.y), (self.all_sprites, self.collision_sprites), entity.image)
+            self.zone1_sprites.add(sprite)
 
         for x, y, image in self.tile_map.get_layer_by_name('map_border').tiles():
 
