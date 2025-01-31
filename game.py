@@ -151,6 +151,8 @@ class Game:
 
             delta_time = self.clock.tick() / 1000.0
 
+            mouse_pos = pygame.mouse.get_pos()
+
             # Event loop
             for event in pygame.event.get():
 
@@ -194,7 +196,6 @@ class Game:
             self.gui.draw_fps(self.current_fps)
             self.gui.draw_pickup_message()
             self.inventory_gui.draw_toolbar()
-            mouse_pos = pygame.mouse.get_pos()
             self.inventory_gui.handle_mouse_input(mouse_pos, self.player)
 
             # Check if player is dead
