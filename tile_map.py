@@ -127,7 +127,7 @@ class TileMap:
 
             if entity.name == 'player':
 
-                self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites)
+                self.player = Player((entity.x, entity.y), self.all_sprites, self.collision_sprites, self.interactables_sprites, self.enemy_sprites, self.all_sprites)
 
             if entity.name == 'slime_spawner':
 
