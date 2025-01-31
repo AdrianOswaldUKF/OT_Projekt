@@ -222,11 +222,7 @@ class Player(Entity):
             self.alive = False
             self.kill()
 
-    def handle_item_switch(self, inventory_visible):
-
-        if inventory_visible:
-
-            return
+    def handle_item_switch(self):
 
         keys = pygame.key.get_pressed()
         current_time = pygame.time.get_ticks()

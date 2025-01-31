@@ -58,6 +58,11 @@ class Game:
         # Inventory GUI
         self.inventory_gui = InventoryGUI(self.display_surface, self.player)
 
+        # Font for "You are dead" message
+        self.font = pygame.font.Font(None, 100)
+        self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100, pygame.display.Info().current_h // 2 + 50, 200, 50)  # Restart button position
+
+
     def toggle_fullscreen(self):
 
         if self.fullscreen:
@@ -71,16 +76,15 @@ class Game:
             self.fullscreen = True
 
     def update_fps(self):
-        # Get current time in milliseconds
+
         current_time = pygame.time.get_ticks()
         self.frame_count += 1
 
-        # Update FPS every second (1000 ms)
         if current_time - self.last_fps_update_time >= self.fps_update_interval:
 
-            self.current_fps = round(self.frame_count / (self.fps_update_interval / 1000))  # Calculate FPS
+            self.current_fps = round(self.frame_count / (self.fps_update_interval / 1000))
             self.last_fps_update_time = current_time
-            self.frame_count = 0  # Reset frame count for the next second
+            self.frame_count = 0
 
     def check_collisions(self, delta_time):
 
@@ -99,6 +103,48 @@ class Game:
         for spawner in self.tile_map.spawners:
 
             spawner.update()
+
+    def draw_game_over_screen(self):
+
+        # Draw the "You are dead" text
+        game_over_text = self.font.render("You are dead", True, (139, 0, 0))  # Dark red
+        self.display_surface.blit(game_over_text, (pygame.display.Info().current_w // 2 - game_over_text.get_width() // 2, pygame.display.Info().current_h // 2 - 100))
+
+        # Draw the Restart button
+        pygame.draw.rect(self.display_surface, (0, 255, 0), self.restart_button)  # Green button
+        restart_text = self.font.render("Restart", True, (255, 255, 255))  # White text
+        self.display_surface.blit(restart_text, (self.restart_button.centerx - restart_text.get_width() // 2,
+                                                 self.restart_button.centery - restart_text.get_height() // 2))
+
+    def handle_restart(self):
+
+        # Check if restart button is clicked
+        mouse_pos = pygame.mouse.get_pos()
+
+        if self.restart_button.collidepoint(mouse_pos):
+
+            if pygame.mouse.get_pressed()[0]:  # Left click
+
+                self.reset_game()
+
+    def reset_game(self):
+
+        # Reset the game state
+        self.all_sprites.empty()
+        self.collision_sprites.empty()
+        self.enemy_sprites.empty()
+        self.interactables_sprites.empty()
+
+        # Reload map and player
+        self.tile_map.load_tilemap()
+        self.player = self.tile_map.player
+
+        # Reset player health
+        self.player.health = 100
+        self.player.alive = True
+
+        # Restart GUI
+        self.gui = GUI(self.display_surface, self.player)
 
     def run(self):
         while self.running:
@@ -123,31 +169,13 @@ class Game:
 
                     self.player.interact()
 
-                # Toggle inventory
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-
-                    self.inventory_gui.toggle_inventory()
 
                 # Handle item pickup messages
                 if event.type == ITEM_PICKUP_EVENT:
 
                     self.gui.show_pickup_message(event.message)
 
-            if not self.inventory_gui.inventory_visible:
-
-                # Allow item switching if inventory is not visible
-                self.player.handle_item_switch(self.inventory_gui.inventory_visible)
-
-            if self.inventory_gui.inventory_visible:
-
-                # Handle keyboard input for equipping items
-                self.inventory_gui.handle_input(self.player)
-
-                # Handle mouse input for switching items
-                if pygame.mouse.get_pressed()[0]:  # Left click
-
-                    mouse_pos = pygame.mouse.get_pos()
-                    self.inventory_gui.handle_mouse_input(mouse_pos, self.player, self.player.inventory)
+            self.player.handle_item_switch()
 
             self.update_spawners()
 
@@ -165,10 +193,14 @@ class Game:
             self.gui.draw_health_text(self.player.health)
             self.gui.draw_fps(self.current_fps)
             self.gui.draw_pickup_message()
-            self.gui.draw_equipped_sword()
+            self.inventory_gui.draw_toolbar()
+            mouse_pos = pygame.mouse.get_pos()
+            self.inventory_gui.handle_mouse_input(mouse_pos, self.player)
 
-            # Draw Inventory if visible
-            self.inventory_gui.draw_inventory(self.player.inventory)
+            # Check if player is dead
+            if not self.player.alive:
+                self.draw_game_over_screen()
+                self.handle_restart()
 
             pygame.display.update()
 
