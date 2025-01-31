@@ -74,9 +74,18 @@ class Player(Entity):
         self.is_attacking = False
         self.slash = None
 
+        self.attack_sounds = [
+            pygame.mixer.Sound(join('assets', 'sounds', 'player', 'slash', '0.wav')),
+            pygame.mixer.Sound(join('assets', 'sounds', 'player', 'slash', '1.wav'))
+        ]
+        self.attack_count = 0
+
         # Equip cooldown
         self.equip_cooldown = PLAYER_EQUIP_COOLDOWN
         self.last_equip_time = 0
+
+        self.equip_sound = pygame.mixer.Sound(join('assets', 'sounds', 'player', 'equip', '0.wav'))
+        self.unequip_sound = pygame.mixer.Sound(join('assets', 'sounds', 'player', 'unequip', '0.wav'))
 
 
     def load_images(self):
@@ -159,6 +168,11 @@ class Player(Entity):
             self.is_attacking = False
 
             self.equipped.attack(self.attack_rect, self, self.enemy_sprites)
+
+            sound_to_play = self.attack_sounds[self.attack_count % len(self.attack_sounds)]
+            sound_to_play.play()
+
+            self.attack_count += 1
 
     def input(self):
 
@@ -257,12 +271,13 @@ class Player(Entity):
 
                         self.equipped.unequip(self)
                         self.equipped = None
+                        self.unequip_sound.play()
 
                         return
 
                 item.equip(self)
                 self.equipped = item
-
+                self.equip_sound.play()
 
             self.last_equip_time = current_time
 

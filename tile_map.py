@@ -110,7 +110,6 @@ class TileMap:
         for x, y, image in self.tile_map.get_layer_by_name('terrain').tiles():
 
             if image:
-
                 Sprite((x * TILE_SIZE, y * TILE_SIZE), self.all_sprites, image) # const.py
 
         #for gameObject in self.tile_map.get_layer_by_name('objects'):
