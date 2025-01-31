@@ -19,6 +19,7 @@ class AllSprites(pygame.sprite.Group):
         player_sprite = [sprite for sprite in self if hasattr(sprite, 'isPlayer')]
         enemy_sprites = [sprite for sprite in self if hasattr(sprite, 'isEnemy')]
         object_sprites = [sprite for sprite in self if hasattr(sprite, 'object')]
+        item_sprites = [sprite for sprite in self if hasattr(sprite, 'isHealingPotion')]
         slash_sprites = [sprite for sprite in self if hasattr(sprite, 'isSlash')]
 
         # Ground
@@ -46,6 +47,11 @@ class AllSprites(pygame.sprite.Group):
         for slash in slash_sprites:
 
             self.scene.blit(slash.image, slash.rect.topleft + self.offset)
+
+        # Slashes
+        for item in item_sprites:
+
+            self.scene.blit(item.image, item.rect.topleft + self.offset)
 
         for sprite in enemy_sprites:
 

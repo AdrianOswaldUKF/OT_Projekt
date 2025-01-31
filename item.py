@@ -1,3 +1,5 @@
+import os.path
+
 import pygame
 
 
@@ -14,6 +16,7 @@ class Item(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_frect()
 
+
     def equip(self, player):
 
         if self.equippable:
@@ -27,3 +30,22 @@ class Item(pygame.sprite.Sprite):
 
             player.equipped = None
             self.equipped = False
+
+class HealingPotion(pygame.sprite.Sprite):
+
+    def __init__(self, x, y, player, groups):
+
+        super().__init__(groups)
+        self.image = pygame.image.load('assets/sprites/items/healing_potion/0.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (16, 20))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.player = player
+        self.heal_amount = 20
+        self.isHealingPotion = True
+
+
+    def update(self, delta_time):
+
+        if self.rect.colliderect(self.player.rect):
+            self.player.heal(self.heal_amount)
+            self.kill()

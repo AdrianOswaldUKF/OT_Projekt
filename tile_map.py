@@ -66,7 +66,8 @@ class SlimeSpawner:
                 (self.all_sprites, self.enemy_sprites),
                 self.player,
                 self.collision_sprites,
-                self.enemy_sprites
+                self.enemy_sprites,
+                self.all_sprites
             )
             self.spawned_slimes.append(slime)
             self.slime_spawn_count += 1

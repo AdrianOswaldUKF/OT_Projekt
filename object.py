@@ -56,6 +56,7 @@ class Chest(Object):
 
         self.opened = False
         self.inventory = [item]
+        self.open_sound = pygame.mixer.Sound(os.path.join('assets', 'sounds','object', 'chest', 'open','0.wav'))
 
     def interact(self):
 
@@ -68,5 +69,6 @@ class Chest(Object):
 
             picked_item = self.inventory[0]
             self.player.inventory.append(picked_item)
+            self.open_sound.play()
 
             pygame.event.post(pygame.event.Event(ITEM_PICKUP_EVENT, {"message": f"Picked up {picked_item.name}!"}))

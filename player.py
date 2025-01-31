@@ -236,6 +236,10 @@ class Player(Entity):
             self.alive = False
             self.kill()
 
+    def heal(self, amount):
+
+        self.health = min(self.health + amount, 100)
+
     def handle_item_switch(self):
 
         keys = pygame.key.get_pressed()
@@ -267,13 +271,14 @@ class Player(Entity):
 
                 if self.equipped:
 
-                    if self.equipped == item:
-
-                        self.equipped.unequip(self)
-                        self.equipped = None
-                        self.unequip_sound.play()
-
-                        return
+                     if self.equipped == item:
+                         pass
+                    #
+                    #     self.equipped.unequip(self)
+                    #     self.equipped = None
+                    #     self.unequip_sound.play()
+                    #
+                    #     return
 
                 item.equip(self)
                 self.equipped = item

@@ -1,13 +1,15 @@
 import pygame
+import random
 import os
 from random import randint, uniform
 from const import *
 from entity import Entity
+from item import HealingPotion
 
 
 class Enemy(Entity):
 
-    def __init__(self, name, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, name, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
         super().__init__(groups)
         self.isEnemy = True
@@ -15,6 +17,7 @@ class Enemy(Entity):
         self.render_priority = 1
 
         self.enemy_name = name
+        self.all_sprites = all_sprites
 
         self.position = position
 
@@ -255,6 +258,12 @@ class Enemy(Entity):
 
             self.image.blit(burn_image, (0, 0))
 
+    def drop_loot(self):
+        drop_chance = 0.4
+
+        if random.random() < drop_chance:
+            HealingPotion(self.rect.centerx, self.rect.centery, self.player, self.all_sprites)
+
     def update(self, delta_time):
 
         self.move(delta_time)
@@ -262,8 +271,11 @@ class Enemy(Entity):
 
         if self.health <= 0:
 
+            self.drop_loot()
             self.alive = False
             self.kill()
+
+            return
 
         if self.burning:
 
@@ -326,9 +338,9 @@ class Enemy(Entity):
 
 class Slime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
-        super().__init__('slime', position, groups, player, collision_sprites, enemy_sprites)
+        super().__init__('slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
 
         scale_factor = uniform(0.5, 1.8)
@@ -357,9 +369,9 @@ class Slime(Enemy):
 
 class WaterSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
-        super().__init__('water_slime', position, groups, player, collision_sprites, enemy_sprites)
+        super().__init__('water_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
         scale_factor = uniform(0.8, 1.5)
 
@@ -386,9 +398,9 @@ class WaterSlime(Enemy):
 
 class FireSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
-        super().__init__('fire_slime', position, groups, player, collision_sprites, enemy_sprites)
+        super().__init__('fire_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
         scale_factor = uniform(0.8, 1.5)
 
@@ -438,9 +450,9 @@ class FireSlime(Enemy):
 
 class EarthSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
-        super().__init__('earth_slime', position, groups, player, collision_sprites, enemy_sprites)
+        super().__init__('earth_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
 
         scale_factor = uniform(0.8, 1.5)
@@ -469,9 +481,9 @@ class EarthSlime(Enemy):
 
 class AirSlime(Enemy):
 
-    def __init__(self, position, groups, player, collision_sprites, enemy_sprites):
+    def __init__(self, position, groups, player, collision_sprites, enemy_sprites, all_sprites):
 
-        super().__init__('air_slime', position, groups, player, collision_sprites, enemy_sprites)
+        super().__init__('air_slime', position, groups, player, collision_sprites, enemy_sprites, all_sprites)
 
         scale_factor = uniform(0.8, 1.5)
 
