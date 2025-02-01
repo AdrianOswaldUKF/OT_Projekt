@@ -263,3 +263,7 @@ class TileMap:
 
                     self.zone3_sprites.add(sprite)
 
+                if entity.name == '4':
+
+                    self.zone4_sprites.add(sprite)
+
