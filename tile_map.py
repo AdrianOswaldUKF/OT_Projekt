@@ -167,6 +167,7 @@ class TileMap:
                 Chest((entity.x, entity.y), (self.all_sprites, self.collision_sprites, self.interactables_sprites), self.player, earth_sword, self.collision_sprites)
 
         for entity in self.tile_map.get_layer_by_name('zone1'):
+
             sprite = CollisionSprite((entity.x, entity.y), (self.all_sprites, self.collision_sprites), entity.image)
             self.zone1_sprites.add(sprite)
 
