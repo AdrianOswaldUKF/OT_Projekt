@@ -15,7 +15,7 @@ SPAWNER_GLOBAL_MAX = 20
 
 ## Player ##
 PLAYER_SIZE = 32, 32
-PLAYER_HITBOX = -20, -20
+PLAYER_HITBOX = -10, -10
 
 # Player Attack
 PLAYER_ATTACK_WIDTH = 32
@@ -48,7 +48,7 @@ EARTHSWORD_KNOCKBACK_SPEED = 100
 EARTHSWORD_KNOCKBACK_DURATION = 1.5
 
 ## Enemies ##
-ENEMY_LOS = (300, 300) # LOS dimensions (width, height)
+ENEMY_LOS = (500, 500) # LOS dimensions (width, height)
 ENEMY_DISTANCE_THRESHOLD = 40 # Minimum distance threshold
 
 ## Slimes ##

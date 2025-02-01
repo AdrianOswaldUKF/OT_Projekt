@@ -243,7 +243,7 @@ class Player(Entity):
 
         self.health = min(self.health + amount, 100)
 
-        damage_sprite = DamageNumber(amount, self.rect.center, color=(1, 50, 32))
+        damage_sprite = DamageNumber(amount, self.rect.center, color=(0, 255, 0))
         self.all_sprites.add(damage_sprite)
 
     def handle_item_switch(self):

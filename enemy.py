@@ -262,7 +262,7 @@ class Enemy(Entity):
             self.image.blit(burn_image, (0, 0))
 
     def drop_loot(self):
-        drop_chance = 0.4
+        drop_chance = 0.2
 
         if random.random() < drop_chance:
             HealingPotion(self.rect.centerx, self.rect.centery, self.player, self.all_sprites)
@@ -351,7 +351,7 @@ class Slime(Enemy):
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor + 5, SLIME_HITBOX[1] * scale_factor + 5)
 
         # Stats
         if scale_factor < 1:
@@ -379,7 +379,7 @@ class WaterSlime(Enemy):
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor + 5, SLIME_HITBOX[1] * scale_factor + 5)
 
         # Stats
         if scale_factor < 1:
@@ -409,7 +409,7 @@ class FireSlime(Enemy):
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor + 5, SLIME_HITBOX[1] * scale_factor + 5)
 
         # Stats
         if scale_factor < 1:
@@ -462,7 +462,7 @@ class EarthSlime(Enemy):
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor + 5, SLIME_HITBOX[1] * scale_factor + 5)
 
         # Stats
         if scale_factor < 1:
@@ -492,7 +492,7 @@ class AirSlime(Enemy):
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
-        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor, SLIME_HITBOX[1] * scale_factor)
+        self.hitbox_rect = self.rect.inflate(SLIME_HITBOX[0] * scale_factor + 5, SLIME_HITBOX[1] * scale_factor + 5)
 
         # Stats
         if scale_factor < 1:

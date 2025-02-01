@@ -7,7 +7,7 @@ ITEM_PICKUP_EVENT = pygame.event.custom_type()
 
 class Object(pygame.sprite.Sprite):
 
-    def __init__(self, name, position, groups, player, collision_sprites):
+    def __init__(self, name, position, groups, player, collision_sprites, progression=None):
 
         super().__init__(groups)
         self.object = True
@@ -25,6 +25,8 @@ class Object(pygame.sprite.Sprite):
         # Sprites
         self.image = self.sprites[0]
         self.rect = self.image.get_frect(topleft=position)
+
+        self.progression = progression
 
     def load_images(self):
 
@@ -47,9 +49,9 @@ class Object(pygame.sprite.Sprite):
 
 class Chest(Object):
 
-    def __init__(self, position, groups, player, item, collision_sprites):
+    def __init__(self, position, groups, player, item, collision_sprites, progression=None):
 
-        super().__init__('chest', position, groups, player, collision_sprites)
+        super().__init__('chest', position, groups, player, collision_sprites, progression)
 
         self.image = pygame.transform.scale(self.image, CHEST_SIZE)  # const.py
         self.rect = self.image.get_frect(topleft=self.position)
@@ -72,3 +74,9 @@ class Chest(Object):
             self.open_sound.play()
 
             pygame.event.post(pygame.event.Event(ITEM_PICKUP_EVENT, {"message": f"Picked up {picked_item.name}!"}))
+
+            if self.progression:
+
+                for sprite in self.progression:
+
+                    sprite.kill()

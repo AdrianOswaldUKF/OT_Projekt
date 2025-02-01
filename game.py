@@ -4,18 +4,18 @@ from os.path import join
 from const import *
 from groups import AllSprites
 from object import ITEM_PICKUP_EVENT
-from tile_map import TileMap, SlimeSpawner
+from tile_map import TileMap
 from gui import GUI, InventoryGUI
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, display_surface, fullscreen):
 
         pygame.init()
 
         # Game window
-        self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        self.fullscreen = True
+        self.display_surface = display_surface
+        self.fullscreen = fullscreen
         pygame.display.set_caption('Slimes Invade')
 
         # Sprite Groups
@@ -27,7 +27,7 @@ class Game:
         # Map
         self.tile_map = TileMap(
             self.display_surface,
-            join('assets', 'map', 'tmx', 'test.tmx'),
+            join('assets', 'map', 'tmx', 'level_1.tmx'),
             self.all_sprites,
             self.collision_sprites,
             self.enemy_sprites,
@@ -68,6 +68,12 @@ class Game:
             200, 50
         )
 
+        self.game_music = pygame.mixer.Sound(join('assets', 'sounds', 'game', 'game.wav'))
+        self.game_music.set_volume(0.1)
+        self.game_music.play(loops=-1)
+
+        self.paused = False
+
 
     def toggle_fullscreen(self):
 
@@ -83,6 +89,69 @@ class Game:
 
         self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100,
                                           pygame.display.Info().current_h // 2 + 50, 200, 50)
+
+    def toggle_pause(self):
+
+        self.paused = not self.paused
+
+    def draw_pause_menu(self):
+
+        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+        # Pause text
+        pause_text = self.font.render("PAUSED", True, (255, 255, 255))
+        self.display_surface.blit(pause_text,
+                                  (screen_width // 2 - pause_text.get_width() // 2, screen_height // 2 - 100))
+
+        # Button styling
+        continue_text = self.font.render("Continue", True, (255, 255, 255))
+        quit_text = self.font.render("Quit", True, (255, 255, 255))
+
+        continue_button_width = continue_text.get_width() + 20
+        continue_button_height = continue_text.get_height() + 10
+        continue_button = pygame.Rect(screen_width // 2 - continue_button_width // 2,
+                                      screen_height // 2 + 50, continue_button_width, continue_button_height)
+
+        quit_button_width = quit_text.get_width() + 20
+        quit_button_height = quit_text.get_height() + 10
+        quit_button = pygame.Rect(screen_width // 2 - quit_button_width // 2,
+                                  screen_height // 2 + 150, quit_button_width, quit_button_height)
+
+        # Draw buttons
+        pygame.draw.rect(self.display_surface, (60, 60, 60), continue_button, border_radius=12)
+        pygame.draw.rect(self.display_surface, (50, 50, 50), continue_button, border_radius=12, width=3)
+        pygame.draw.rect(self.display_surface, (60, 60, 60), quit_button, border_radius=12)
+        pygame.draw.rect(self.display_surface, (50, 50, 50), quit_button, border_radius=12, width=3)
+
+        return continue_button, quit_button, continue_text, quit_text
+
+    def handle_pause_menu(self):
+
+        mouse_pos = pygame.mouse.get_pos()
+        continue_button, quit_button, continue_text, quit_text = self.draw_pause_menu()
+
+        # Hover effect
+        if continue_button.collidepoint(mouse_pos):
+            pygame.draw.rect(self.display_surface, (80, 80, 80), continue_button, border_radius=12)
+            pygame.draw.rect(self.display_surface, (50, 50, 50), continue_button, border_radius=12, width=3)
+
+        if quit_button.collidepoint(mouse_pos):
+            pygame.draw.rect(self.display_surface, (80, 80, 80), quit_button, border_radius=12)
+            pygame.draw.rect(self.display_surface, (50, 50, 50), quit_button, border_radius=12, width=3)
+
+
+        self.display_surface.blit(continue_text, (continue_button.centerx - continue_text.get_width() // 2,
+                                                  continue_button.centery - continue_text.get_height() // 2))
+        self.display_surface.blit(quit_text, (quit_button.centerx - quit_text.get_width() // 2,
+                                              quit_button.centery - quit_text.get_height() // 2))
+
+        if continue_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+
+            self.toggle_pause()
+
+        if quit_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+
+            self.running = False
 
     def update_fps(self):
 
@@ -187,27 +256,28 @@ class Game:
 
     def reset_game(self):
 
-        # Reset the game state
+        # Reset all sprite groups
         self.all_sprites.empty()
         self.collision_sprites.empty()
         self.enemy_sprites.empty()
         self.interactables_sprites.empty()
+        self.tile_map.spawners.clear()
 
         # Reload map and player
         self.tile_map.load_tilemap()
         self.player = self.tile_map.player
-
-        # Reset player health
         self.player.health = 100
         self.player.alive = True
 
         # Restart GUI
         self.gui = GUI(self.display_surface, self.player)
+        self.inventory_gui = InventoryGUI(self.display_surface, self.player)
+
+        # Reset progression flags
+        self.player_won = False
 
     def run(self):
-
         while self.running:
-
             delta_time = self.clock.tick() / 1000.0
 
             mouse_pos = pygame.mouse.get_pos()
@@ -215,59 +285,71 @@ class Game:
             # Event loop
             for event in pygame.event.get():
 
-                # Quit event
-                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                if event.type == pygame.QUIT:
 
                     self.running = False
 
-                # Toggle fullscreen
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+                if event.type == pygame.KEYDOWN:
 
-                    self.toggle_fullscreen()
+                    if event.key == pygame.K_ESCAPE:
 
-                # Interact
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+                        self.toggle_pause()
 
-                    self.player.interact()
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 
+                        self.toggle_fullscreen()
 
-                # Handle item pickup messages
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+
+                        self.player.interact()
+
+                if self.paused:
+
+                    self.handle_pause_menu()
+                    pygame.display.update()
+
+                    continue
+
                 if event.type == ITEM_PICKUP_EVENT:
 
                     self.gui.show_pickup_message(event.message)
 
-            self.player.handle_item_switch()
+            if not self.paused:
 
-            self.update_spawners()
+                self.player.handle_item_switch()
+                self.update_spawners()
 
-            # Update
-            self.display_surface.fill((0, 255, 255))  # Example background color
-            self.all_sprites.draw(self.player.rect.center)
-            self.all_sprites.update(delta_time)
-            self.check_collisions(delta_time)
+                # Update
+                self.display_surface.fill((61, 139, 175))
+                self.all_sprites.draw(self.player.rect.center)
+                self.all_sprites.update(delta_time)
+                self.check_collisions(delta_time)
 
-            # Update FPS
-            self.update_fps()
+                # Update FPS
+                self.update_fps()
 
-            # Draw GUI
-            self.gui.draw_health_bar(self.player.health, 100)
-            self.gui.draw_health_text(self.player.health)
-            self.gui.draw_fps(self.current_fps)
-            self.gui.draw_pickup_message()
-            self.inventory_gui.draw_toolbar()
-            self.inventory_gui.handle_mouse_input(mouse_pos, self.player)
+                # Draw GUI
+                self.gui.draw_health_bar(self.player.health, 100)
+                self.gui.draw_health_text(self.player.health)
+                self.gui.draw_fps(self.current_fps)
+                self.gui.draw_pickup_message()
+                self.inventory_gui.draw_toolbar()
+                self.inventory_gui.handle_mouse_input(mouse_pos, self.player)
 
-            # Check if player is dead
-            if not self.player.alive:
-                self.draw_game_over_screen()
-                self.handle_restart()
+                # Check if player is dead or has won
+                if not self.player.alive:
 
-            if self.player_won:
-                self.draw_win_screen()
+                    self.draw_game_over_screen()
+                    self.handle_restart()
+                if self.player_won:
 
-                mouse_pos = pygame.mouse.get_pos()
-                if self.quit_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
-                    self.running = False
+                    self.draw_win_screen()
+
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    if self.quit_button.collidepoint(mouse_pos):
+                        if pygame.mouse.get_pressed()[0]:
+                            self.running = False
 
             pygame.display.update()
 

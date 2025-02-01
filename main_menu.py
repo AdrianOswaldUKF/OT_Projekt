@@ -1,3 +1,4 @@
+import os
 import pygame
 import sys
 from const import *
@@ -7,7 +8,6 @@ from game import Game
 class MainMenu:
 
     def __init__(self):
-
         # Game window
         self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.fullscreen = True
@@ -17,12 +17,8 @@ class MainMenu:
         self.font = pygame.font.Font(None, 100)
         self.button_font = pygame.font.Font(None, 50)
 
-        # Button
-        self.start_button = pygame.Rect(pygame.display.Info().current_w // 2 - 150,
-                                        pygame.display.Info().current_h // 2 + 50, 300, 50)
-
-        self.quit_button = pygame.Rect(pygame.display.Info().current_w // 2 - 150,
-                                        pygame.display.Info().current_h // 2 + 150, 300, 50)
+        # Button positions (dynamic)
+        self.update_buttons()
 
         # Button colors
         self.button_color = (0, 200, 0)
@@ -30,117 +26,109 @@ class MainMenu:
 
         self.running = True
 
+        # Load menu music
+        self.menu_music = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'menu', 'menu.wav'))
+        self.menu_music.set_volume(0.2)
+        self.menu_music.play(loops=-1)
+
+        # Load background image
+        self.original_bg = pygame.image.load(os.path.join('assets', 'images', 'menu', 'main_menu.png'))
+        self.background_image = self.get_scaled_background()
+
+    def update_buttons(self):
+
+        screen_w, screen_h = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+        self.start_button = pygame.Rect(screen_w // 2 - 150, screen_h // 2, 300, 50)
+        self.quit_button = pygame.Rect(screen_w // 2 - 150, self.start_button.bottom + 20, 300, 50)
+
+    def get_scaled_background(self):
+
+        screen_w, screen_h = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+        return pygame.transform.smoothscale(self.original_bg, (screen_w, screen_h))
+
     def draw_main_menu(self):
 
-        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
-
-        self.draw_gradient_background(screen_width, screen_height)
-
-        self.draw_title(screen_width, screen_height)
-
+        self.display_surface.blit(self.background_image, (0, 0))
+        self.draw_title()
         self.draw_buttons()
 
-    def draw_gradient_background(self, width, height):
+    def draw_title(self):
 
-        for y in range(height):
-
-            color = (0, 0, int(255 * y / height))
-            pygame.draw.line(self.display_surface, color, (0, y), (width, y))
-
-    def draw_title(self, width, height):
+        screen_w, screen_h = pygame.display.Info().current_w, pygame.display.Info().current_h
 
         title_text = self.font.render("Slimes Invade", True, (255, 255, 255))
         shadow_text = self.font.render("Slimes Invade", True, (50, 50, 50))
 
-        self.display_surface.blit(shadow_text, (width // 2 - shadow_text.get_width() // 2 + 5, height // 2 - 150 + 5))
-        self.display_surface.blit(title_text, (width // 2 - title_text.get_width() // 2, height // 2 - 150))
+        self.display_surface.blit(shadow_text, (screen_w // 2 - shadow_text.get_width() // 2 + 5,
+                                                screen_h // 2 - 150 + 5))
+        self.display_surface.blit(title_text, (screen_w // 2 - title_text.get_width() // 2, screen_h // 2 - 150))
 
     def draw_buttons(self):
 
         mouse_pos = pygame.mouse.get_pos()
 
-        if self.start_button.collidepoint(mouse_pos):
+        for button, text in [(self.start_button, "Start"), (self.quit_button, "Quit")]:
 
-            pygame.draw.rect(self.display_surface, self.button_hover_color, self.start_button, border_radius=15)
-        else:
+            color = self.button_hover_color if button.collidepoint(mouse_pos) else self.button_color
+            pygame.draw.rect(self.display_surface, color, button, border_radius=15)
 
-            pygame.draw.rect(self.display_surface, self.button_color, self.start_button, border_radius=15)
-
-        if self.quit_button.collidepoint(mouse_pos):
-
-            pygame.draw.rect(self.display_surface, self.button_hover_color, self.quit_button, border_radius=15)
-        else:
-
-            pygame.draw.rect(self.display_surface, self.button_color, self.quit_button, border_radius=15)
-
-        # Button text
-        start_text = self.button_font.render("Start", True, (255, 255, 255))
-        self.display_surface.blit(start_text, (self.start_button.centerx - start_text.get_width() // 2,
-                                               self.start_button.centery - start_text.get_height() // 2))
-
-        # Button text
-        start_text = self.button_font.render("Quit", True, (255, 255, 255))
-        self.display_surface.blit(start_text, (self.quit_button.centerx - start_text.get_width() // 2,
-                                               self.quit_button.centery - start_text.get_height() // 2))
+            text_surf = self.button_font.render(text, True, (255, 255, 255))
+            self.display_surface.blit(text_surf, (button.centerx - text_surf.get_width() // 2,
+                                                  button.centery - text_surf.get_height() // 2))
 
     def handle_menu_input(self):
 
         mouse_pos = pygame.mouse.get_pos()
 
-        if self.start_button.collidepoint(mouse_pos):
+        if self.start_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
 
-            if pygame.mouse.get_pressed()[0]:
+            self.menu_music.stop()
+            return False  # Exit menu
 
-                return False
+        if self.quit_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
 
-        if self.quit_button.collidepoint(mouse_pos):
+            pygame.quit()
+            sys.exit()
 
-            if pygame.mouse.get_pressed()[0]:
-
-                pygame.quit()
-                sys.exit()
-
-        return True
+        return True  # Keep menu running
 
     def toggle_fullscreen(self):
 
         if self.fullscreen:
 
-            self.display_surface = pygame.display.set_mode((WINDOW_W, WINDOW_H))  # const.py
+            self.display_surface = pygame.display.set_mode((WINDOW_W, WINDOW_H))  # Use windowed size from const.py
             self.fullscreen = False
         else:
 
             self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
             self.fullscreen = True
 
-        self.start_button = pygame.Rect(pygame.display.Info().current_w // 2 - 150,
-                                        pygame.display.Info().current_h // 2 + 50, 300, 50)
+        self.update_buttons()
+        self.background_image = self.get_scaled_background()  # Rescale background
 
     def run(self):
+
 
         while self.running:
 
             self.display_surface.fill((0, 0, 0))
-
             self.draw_main_menu()
 
-            # Event loop
             for event in pygame.event.get():
 
-                # Quit event
                 if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 
                     pygame.quit()
                     sys.exit()
 
-                # Toggle fullscreen
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 
                     self.toggle_fullscreen()
 
-            # Handle button click
             self.running = self.handle_menu_input()
 
             pygame.display.update()
 
-        return Game()  # Launch Game
+        return Game(self.display_surface, self.fullscreen)

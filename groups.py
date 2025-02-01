@@ -35,6 +35,12 @@ class AllSprites(pygame.sprite.Group):
 
                 self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)
 
+        for sprite in enemy_sprites:
+
+            if hasattr(sprite, 'render_health_bar'):
+
+                sprite.render_health_bar(self.scene, self.offset)
+
         # Sort Player + Objects
         all_sprites = player_sprite + object_sprites
         sorted_sprites = sorted(all_sprites, key=lambda sprite: (
@@ -54,11 +60,6 @@ class AllSprites(pygame.sprite.Group):
 
             self.scene.blit(item.image, item.rect.topleft + self.offset)
 
-        for sprite in enemy_sprites:
-
-            if hasattr(sprite, 'render_health_bar'):
-
-                sprite.render_health_bar(self.scene, self.offset)
 
         for sprite in sorted(damage_number_sprites, key=lambda s: s.rect.centery):
 
