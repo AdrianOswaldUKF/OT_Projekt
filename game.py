@@ -61,6 +61,13 @@ class Game:
         self.font = pygame.font.Font(None, 100)
         self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100, pygame.display.Info().current_h // 2 + 50, 200, 50)
 
+        self.player_won = False
+        self.quit_button = pygame.Rect(
+            pygame.display.Info().current_w // 2 - 100,
+            pygame.display.Info().current_h // 2 + 50,
+            200, 50
+        )
+
 
     def toggle_fullscreen(self):
 
@@ -106,6 +113,10 @@ class Game:
 
             spawner.update()
 
+        if not self.tile_map.spawners:
+
+            self.player_won = True
+
     def draw_game_over_screen(self):
 
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
@@ -128,6 +139,41 @@ class Game:
         pygame.draw.rect(self.display_surface, (0, 0, 0, 0), self.restart_button, width=2)
         self.display_surface.blit(restart_text, (self.restart_button.centerx - restart_text.get_width() // 2,
                                                       self.restart_button.centery - restart_text.get_height() // 2))
+
+    def draw_win_screen(self):
+
+        screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
+
+        dark_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        dark_surface.fill((30, 30, 30, 150))
+        self.display_surface.blit(dark_surface, (0, 0))
+
+        win_text = self.font.render("You Win!", True, (0, 255, 0))
+        self.display_surface.blit(
+            win_text,
+            (screen_width // 2 - win_text.get_width() // 2, screen_height // 2 - 100)
+        )
+
+        quit_text = self.font.render("Quit", True, (255, 255, 255))
+
+        padding = 20
+        quit_button_width = quit_text.get_width() + padding
+        quit_button_height = quit_text.get_height() + padding
+        self.quit_button = pygame.Rect(
+            screen_width // 2 - quit_button_width // 2,
+            screen_height // 2 + 50,
+            quit_button_width,
+            quit_button_height
+        )
+
+        pygame.draw.rect(self.display_surface, (100, 100, 100), self.quit_button, border_radius=10)
+        pygame.draw.rect(self.display_surface, (0, 0, 0), self.quit_button, width=2)
+
+        self.display_surface.blit(
+            quit_text,
+            (self.quit_button.centerx - quit_text.get_width() // 2,
+             self.quit_button.centery - quit_text.get_height() // 2)
+        )
 
     def handle_restart(self):
 
@@ -215,6 +261,13 @@ class Game:
             if not self.player.alive:
                 self.draw_game_over_screen()
                 self.handle_restart()
+
+            if self.player_won:
+                self.draw_win_screen()
+
+                mouse_pos = pygame.mouse.get_pos()
+                if self.quit_button.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+                    self.running = False
 
             pygame.display.update()
 
