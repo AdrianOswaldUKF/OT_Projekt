@@ -1,4 +1,4 @@
-# **OT_Projekt_Adrian_Oswald - Game Design Document - SK**
+# **OT_Projekt_Oswald - Game Design Document - SK**
 
 Na danom repozitáre sa nachádza implementácia prototypu hry v Pygame, ktorá je záverečným projektom predmetu Objektové Technológie.
 
