@@ -16,12 +16,14 @@ class Entity(pygame.sprite.Sprite):
         self.health = 0
         self.alive = True
 
+    # Collision
     def collision(self, direction):
 
         for sprite in self.collision_sprites:
 
             if sprite.rect.colliderect(self.hitbox_rect):
 
+                # Horizontal collision
                 if direction == 'horizontal':
 
                     if self.direction.x > 0:  # Moving right
@@ -31,6 +33,7 @@ class Entity(pygame.sprite.Sprite):
 
                         self.hitbox_rect.left = sprite.rect.right
 
+                # Vertical collision
                 if direction == 'vertical':
 
                     if self.direction.y > 0:  # Moving down

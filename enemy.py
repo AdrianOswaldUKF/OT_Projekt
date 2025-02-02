@@ -86,9 +86,11 @@ class Enemy(Entity):
         self.knockback_duration = 0
         self.knockback_speed = 0
 
+        # Sounds
         self.hurt_sound = pygame.mixer.Sound(os.path.join('assets', 'sounds', 'enemy', 'hit', '0.wav'))
         self.hurt_sound.set_volume(0.5)
 
+    # Load sprites
     def load_images(self):
 
         folder_path = os.path.join('assets', 'sprites', 'enemies', self.enemy_name)
@@ -119,10 +121,12 @@ class Enemy(Entity):
 
                     self.burning_sprites.append(pygame.image.load(file_path).convert_alpha())
 
+    # Line of sight
     def update_los(self):
 
         self.line_of_sight.center = self.rect.center
 
+    # Knockback
     def apply_knockback(self, knockback_direction, knockback_speed, knockback_duration):
 
         self.knockback = True
@@ -130,8 +134,10 @@ class Enemy(Entity):
         self.knockback_speed = knockback_speed
         self.knockback_duration = knockback_duration
 
+    # Movement
     def move(self, delta_time):
 
+        # If knockbacked do not move
         if self.knockback:
 
             original_position = self.hitbox_rect.topleft
@@ -158,12 +164,14 @@ class Enemy(Entity):
 
             return
 
+        # If stunned do not move
         if self.stunned:
 
             return
 
         self.update_los()
 
+        # If player in sight
         if self.line_of_sight.colliderect(self.player.rect):
 
             self.chasing = True
@@ -171,12 +179,14 @@ class Enemy(Entity):
 
             self.chasing = False
 
+        # If chasing player and the player is alive
         if self.chasing and self.player.alive:
 
             player_pos = pygame.Vector2(self.player.rect.center)
             enemy_pos = pygame.Vector2(self.rect.center)
             direction_vector = player_pos - enemy_pos
 
+            # If the vector is not 0
             if direction_vector.length() != 0:
 
                 self.direction = direction_vector.normalize()
@@ -184,7 +194,9 @@ class Enemy(Entity):
 
                 self.direction = pygame.Vector2()
 
+            # Avoid collision with other enemies when chasing the player
             for enemy in self.enemy_sprites:
+
                 if enemy != self:
 
                     distance = pygame.Vector2(self.rect.center) - pygame.Vector2(enemy.rect.center)
@@ -194,6 +206,7 @@ class Enemy(Entity):
 
                             self.direction += distance.normalize() * 0.5
 
+        # Wait before moving again
         elif self.is_waiting:
 
             self.wait_time -= delta_time
@@ -202,6 +215,7 @@ class Enemy(Entity):
                 self.is_waiting = False
                 self.move_time = self.move_duration
 
+        # Random movement
         else:
 
             self.move_time -= delta_time
@@ -223,12 +237,15 @@ class Enemy(Entity):
         original_position = self.hitbox_rect.topleft
 
         self.hitbox_rect.x += self.direction.x * self.speed * delta_time
+
+        # Fixes a bug with teleporting when colliding
         if self.collision('horizontal'):
 
             self.hitbox_rect.x = original_position[0]
             self.direction.x = 0
 
         self.hitbox_rect.y += self.direction.y * self.speed * delta_time
+        # Fixes a bug with teleporting when colliding
         if self.collision('vertical'):
 
             self.hitbox_rect.y = original_position[1]
@@ -236,6 +253,7 @@ class Enemy(Entity):
 
         self.rect.center = self.hitbox_rect.center
 
+    # Animation
     def animate(self, delta_time):
 
 
@@ -250,6 +268,7 @@ class Enemy(Entity):
 
         self.burn_animation(delta_time)
 
+    # Burning animation
     def burn_animation(self, delta_time):
 
         if self.burning and self.burning_sprites:
@@ -261,12 +280,14 @@ class Enemy(Entity):
 
             self.image.blit(burn_image, (0, 0))
 
+    # Loot drop
     def drop_loot(self):
         drop_chance = 0.2
 
         if random.random() < drop_chance:
             HealingPotion(self.rect.centerx, self.rect.centery, self.player, self.all_sprites)
 
+    # Update
     def update(self, delta_time):
 
         self.move(delta_time)
@@ -280,6 +301,7 @@ class Enemy(Entity):
 
             return
 
+        # Burning
         if self.burning:
 
             self.burn_timer += delta_time
@@ -301,6 +323,7 @@ class Enemy(Entity):
         else:
             self.total_burn_time = 0
 
+        # Stun
         if self.stunned:
 
             self.stun_duration -= delta_time
@@ -308,7 +331,7 @@ class Enemy(Entity):
             if self.stun_duration <= 0:
                 self.stunned = False
 
-
+    # Damage
     def deal_damage(self, delta_time):
 
         if not self.player.alive:
@@ -323,6 +346,7 @@ class Enemy(Entity):
         self.player.health -= self.damage
         self.last_damage = 0
 
+    # Health bar
     def render_health_bar(self, screen, offset):
 
         max_bar_width = SLIME_SIZE[0]
@@ -348,6 +372,7 @@ class Slime(Enemy):
 
         scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
+        # Sprite scale
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
@@ -376,6 +401,7 @@ class WaterSlime(Enemy):
 
         scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
+        # Sprite scale
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
@@ -405,7 +431,7 @@ class FireSlime(Enemy):
 
         scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
-
+        # Sprite scale
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
@@ -458,7 +484,7 @@ class EarthSlime(Enemy):
 
         scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
-
+        # Sprite scale
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)
@@ -488,7 +514,7 @@ class AirSlime(Enemy):
 
         scale_factor = scale_factor if scale_factor else uniform(0.5, 1.5)
 
-
+        # Sprite scale
         self.size = (int(SLIME_SIZE[0] * scale_factor), int(SLIME_SIZE[1] * scale_factor))
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_frect(center=self.rect.center)

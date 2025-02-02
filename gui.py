@@ -72,6 +72,7 @@ class GUI:
 class InventoryGUI(GUI):
 
     def __init__(self, screen, player):
+
         super().__init__(screen, player)
 
         # Inventory UI settings
@@ -91,15 +92,20 @@ class InventoryGUI(GUI):
         self.sword_slots = []
 
     def draw_toolbar(self):
+
         sword_rect_width = 48
         sword_rect_height = 48
         slot_spacing = 10
+
+        # Position
         start_x = pygame.display.Info().current_w // 2 - (sword_rect_width * 5 + slot_spacing * 4) // 2
         start_y = pygame.display.Info().current_h - sword_rect_height - 10
 
         self.sword_slots.clear()
 
         for i in range(5):
+
+            # Sword
             sword_rect_x = start_x + i * (sword_rect_width + slot_spacing)
             sword_rect = pygame.Rect(sword_rect_x, start_y, sword_rect_width, sword_rect_height)
             self.sword_slots.append(sword_rect)  # Store the rect for each slot
@@ -108,18 +114,28 @@ class InventoryGUI(GUI):
             pygame.draw.rect(self.display_surface, (50, 50, 50), sword_rect, border_radius=12, width=3)
 
             if self.player.inventory and i < len(self.player.inventory):
+
                 selected_sword = self.player.inventory[i]
+
+                # If the item is a sword
                 if isinstance(selected_sword, Sword):
+
+                    # If equipped
                     if selected_sword == self.player.equipped:
+
                         pygame.draw.rect(self.display_surface, (0, 255, 0), sword_rect, border_radius=12, width=3)
 
+                    # If the sword has a sprite
                     if hasattr(selected_sword, 'image'):
+
                         sword_image = pygame.transform.scale(selected_sword.image,
                                                              (sword_rect.width, sword_rect.height))
                         self.display_surface.blit(sword_image, sword_rect.topleft)
                 else:
+
                     pygame.draw.rect(self.display_surface, (30, 30, 30), sword_rect, border_radius=12)
             else:
+
                 pygame.draw.rect(self.display_surface, (30, 30, 30), sword_rect, border_radius=12)
 
     def handle_mouse_input(self, mouse_pos, player):

@@ -8,6 +8,7 @@ from game import Game
 class MainMenu:
 
     def __init__(self):
+
         # Game window
         self.display_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         self.fullscreen = True
@@ -39,6 +40,7 @@ class MainMenu:
 
         screen_w, screen_h = pygame.display.Info().current_w, pygame.display.Info().current_h
 
+        # Button position
         self.start_button = pygame.Rect(screen_w // 2 - 150, screen_h // 2, 300, 50)
         self.quit_button = pygame.Rect(screen_w // 2 - 150, self.start_button.bottom + 20, 300, 50)
 
@@ -58,6 +60,7 @@ class MainMenu:
 
         screen_w, screen_h = pygame.display.Info().current_w, pygame.display.Info().current_h
 
+        # Text
         title_text = self.font.render("Slimes Invade", True, (255, 255, 255))
         shadow_text = self.font.render("Slimes Invade", True, (50, 50, 50))
 
@@ -109,7 +112,6 @@ class MainMenu:
         self.background_image = self.get_scaled_background()  # Rescale background
 
     def run(self):
-
 
         while self.running:
 

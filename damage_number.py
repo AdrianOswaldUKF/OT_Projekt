@@ -21,11 +21,13 @@ class DamageNumber(pygame.sprite.Sprite):
 
         self.timer += delta_time
 
+        # Upward movement
         self.rect.y += int(self.speed_y * delta_time)
 
+        # Transparency effect
         alpha = max(0, 255 - int((self.timer / self.lifetime) * 255))
-
         self.image.set_alpha(alpha)
 
         if self.timer >= self.lifetime:
+
             self.kill()

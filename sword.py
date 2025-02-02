@@ -122,7 +122,7 @@ class WaterSword(Sword):
             knockback_direction = knockback_force.normalize()
             enemy.apply_knockback(knockback_direction, self.knockback_speed, self.knockback_duration)
 
-# Earth Sword (Knockback Effect)
+# Earth Sword (Greater Knockback Effect)
 class EarthSword(Sword):
 
     def __init__(self):

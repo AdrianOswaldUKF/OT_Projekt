@@ -36,7 +36,8 @@ class HealingPotion(pygame.sprite.Sprite):
     def __init__(self, x, y, player, groups):
 
         super().__init__(groups)
-        self.image = pygame.image.load('assets/sprites/items/healing_potion/0.png').convert_alpha()
+
+        self.image = pygame.image.load(os.path.join('assets', 'sprites', 'items', 'healing_potion', '0.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (16, 20))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.player = player
@@ -47,5 +48,6 @@ class HealingPotion(pygame.sprite.Sprite):
     def update(self, delta_time):
 
         if self.rect.colliderect(self.player.rect):
+
             self.player.heal(self.heal_amount)
             self.kill()

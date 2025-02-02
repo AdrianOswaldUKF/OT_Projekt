@@ -65,8 +65,8 @@ class Player(Entity):
 
         # Inventory
         self.inventory = []
-        self.inventory_open = False
-        self.inventory_ui = None
+        # self.inventory_open = False
+        # self.inventory_ui = None
 
         # Attacking
         self.attack_rect = pygame.Rect(self.rect.centerx, self.rect.centery, PLAYER_ATTACK_WIDTH, PLAYER_ATTACK_HEIGHT)
@@ -108,6 +108,7 @@ class Player(Entity):
 
                     self.animation_sprites[state].append(pygame.image.load(file_path).convert_alpha())
 
+    # Animation
     def animate(self, delta_time):
 
         if self.direction.x != 0:
@@ -118,11 +119,14 @@ class Player(Entity):
 
             self.state = 'down' if self.direction.y > 0 else 'up'
 
+        # If moving
         if self.direction:
 
             self.frame += 5 * delta_time
             self.image = self.animation_sprites[self.state][int(self.frame) % len(self.animation_sprites[self.state])]
             self.image = pygame.transform.scale(self.image, PLAYER_SIZE) # const.py
+
+        # If not moving
         else:
 
             self.image = self.static_sprites[self.state]
@@ -171,6 +175,7 @@ class Player(Entity):
 
             self.equipped.attack(self.attack_rect, self, self.enemy_sprites)
 
+            # Play sounds
             sound_to_play = self.attack_sounds[self.attack_count % len(self.attack_sounds)]
             sound_to_play.set_volume(0.5)
             sound_to_play.play()
@@ -292,17 +297,17 @@ class Player(Entity):
 
             self.last_equip_time = current_time
 
-    def toggle_inventory(self):
-
-        self.inventory_open = not self.inventory_open
-
-        if self.inventory_open and self.inventory_ui:
-
-            self.inventory_ui.open(self.inventory)
-
-        elif self.inventory_ui:
-
-            self.inventory_ui.close()
+    # def toggle_inventory(self):
+    #
+    #     self.inventory_open = not self.inventory_open
+    #
+    #     if self.inventory_open and self.inventory_ui:
+    #
+    #         self.inventory_ui.open(self.inventory)
+    #
+    #     elif self.inventory_ui:
+    #
+    #         self.inventory_ui.close()
 
     def update(self, delta_time):
 

@@ -12,11 +12,14 @@ class AllSprites(pygame.sprite.Group):
 
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
+        # Offset
         self.offset.x = -(target_pos[0] - screen_width / 2)
         self.offset.y = -(target_pos[1] - screen_height / 2)
 
+        # What the camera/screen sees
         camera_rect = pygame.Rect(-self.offset.x, -self.offset.y, screen_width, screen_height)
 
+        # Only visible sprites
         visible_sprites = [sprite for sprite in self if camera_rect.colliderect(sprite.rect)]
 
         # Categorize only visible sprites
@@ -35,6 +38,7 @@ class AllSprites(pygame.sprite.Group):
 
                 self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)
 
+        #Render health bar
         for sprite in enemy_sprites:
 
             if hasattr(sprite, 'render_health_bar'):
@@ -56,11 +60,12 @@ class AllSprites(pygame.sprite.Group):
 
             self.scene.blit(slash.image, slash.rect.topleft + self.offset)
 
+        # Render item sprites
         for item in item_sprites:
 
             self.scene.blit(item.image, item.rect.topleft + self.offset)
 
-
+        # Render damage numbers
         for sprite in sorted(damage_number_sprites, key=lambda s: s.rect.centery):
 
             self.scene.blit(sprite.image, sprite.rect.topleft + self.offset)

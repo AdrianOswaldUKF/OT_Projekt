@@ -58,16 +58,22 @@ class Game:
         # Inventory GUI
         self.inventory_gui = InventoryGUI(self.display_surface, self.player)
 
+        # Font
         self.font = pygame.font.Font(None, 100)
+
+        # Restart button
         self.restart_button = pygame.Rect(pygame.display.Info().current_w // 2 - 100, pygame.display.Info().current_h // 2 + 50, 200, 50)
 
         self.player_won = False
+
+        # Quit button
         self.quit_button = pygame.Rect(
             pygame.display.Info().current_w // 2 - 100,
             pygame.display.Info().current_h // 2 + 50,
             200, 50
         )
 
+        # Music
         self.game_music = pygame.mixer.Sound(join('assets', 'sounds', 'game', 'game.wav'))
         self.game_music.set_volume(0.1)
         self.game_music.play(loops=-1)
@@ -166,10 +172,12 @@ class Game:
 
     def check_collisions(self, delta_time):
 
+        # If player is not alive do not check collisions
         if not self.player.alive:
 
             return
 
+        # If colliding with player, deal damage
         for enemy in self.enemy_sprites:
 
             if self.player.rect.colliderect(enemy.hitbox_rect):
@@ -178,10 +186,12 @@ class Game:
 
     def update_spawners(self):
 
+        # Update spawners on map
         for spawner in self.tile_map.spawners:
 
             spawner.update()
 
+        # If not any spawners left on the map then the player has won
         if not self.tile_map.spawners:
 
             self.player_won = True
@@ -190,16 +200,19 @@ class Game:
 
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
+        # Dark background with transparency
         dark_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
         dark_surface.fill((30, 30, 30, 150))
 
         self.display_surface.blit(dark_surface, (0, 0))
 
+        # Text
         game_over_text = self.font.render("You are dead", True, (255, 0, 0))
         self.display_surface.blit(game_over_text, (screen_width // 2 - game_over_text.get_width() // 2, screen_height // 2 - 100))
 
         restart_text = self.font.render("Restart", True, (255, 255, 255))
 
+        # Button position
         restart_button_width = restart_text.get_width() + 20
         restart_button_height = restart_text.get_height() + 10
         self.restart_button = pygame.Rect(screen_width // 2 - restart_button_width // 2, screen_height // 2 + 50, restart_button_width, restart_button_height)
@@ -213,10 +226,12 @@ class Game:
 
         screen_width, screen_height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
+        # Dark background with transparency
         dark_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
         dark_surface.fill((30, 30, 30, 150))
         self.display_surface.blit(dark_surface, (0, 0))
 
+        # Text
         win_text = self.font.render("You Win!", True, (0, 255, 0))
         self.display_surface.blit(
             win_text,
@@ -225,6 +240,7 @@ class Game:
 
         quit_text = self.font.render("Quit", True, (255, 255, 255))
 
+        # Button styling
         padding = 20
         quit_button_width = quit_text.get_width() + padding
         quit_button_height = quit_text.get_height() + padding
@@ -277,7 +293,9 @@ class Game:
         self.player_won = False
 
     def run(self):
+
         while self.running:
+
             delta_time = self.clock.tick() / 1000.0
 
             mouse_pos = pygame.mouse.get_pos()
@@ -341,6 +359,8 @@ class Game:
 
                     self.draw_game_over_screen()
                     self.handle_restart()
+
+                # If player won then draw the win screen
                 if self.player_won:
 
                     self.draw_win_screen()
